@@ -17,6 +17,49 @@ Based on the MSF Team Model
 
 ## Governance Track
 
+### Envision Track
+#### Key Deliverables
+- [ ] Vision/Scope document
+- [ ] Project structure document
+- [ ] Initial risk assessment document
+#### Major Check Point
+- [ ] Vision/Scope Approved
+
+### Plan Track
+#### Key Deliverables
+- [ ] Functional Specifications
+- [ ] Master Project Plan
+- [ ] Master Project Schedule
+#### Major Check Point
+- [ ] Project Plans Approved
+
+### Build Track
+#### Key Deliverables
+- [ ] Updated Master Plan, schedule and risk document (PM)
+- [ ] Frozen Functional Specification (PM)
+- [ ] Finalized design, source code and executables (Dev)
+- [ ] End-user training, test specifications, test cases with expected results (UI and Test)
+#### Major Check Point
+- [ ] Scope Complete
+
+### Stabilize Track
+#### Key Deliverables
+- [ ] Integrated solutions components
+- [ ] End-user help and training materials
+- [ ] End-user communications
+- [ ] Testing and Issue reports
+#### Major Check Point
+- [ ] Release Readiness Approved
+
+### Deploy Track
+#### Key Deliverables
+- [ ] Operations and support information systems
+- [ ] Revised processes and procedures
+- [ ] End-user and administrator training
+#### Major Check Point
+- [ ] Deployment Completed
+
+
 
 
 ## Foundational Principles
