@@ -20,7 +20,7 @@ Based on the MSF Team Model
 ### Envision Track
 #### Key Deliverables
 - [ ] Vision/Scope document
-- [ ] Project structure document
+- [ ] Customer and User Success Criteria
 - [ ] Initial risk assessment document
 #### Major Check Point
 - [ ] Vision/Scope Approved
@@ -54,7 +54,7 @@ Based on the MSF Team Model
 ### Deploy Track
 #### Key Deliverables
 - [ ] Operations and support information systems
-- [ ] Revised processes and procedures
+- [ ] Demonstrare Success Criteria Achieved
 - [ ] End-user and administrator training
 #### Major Check Point
 - [ ] Deployment Completed
