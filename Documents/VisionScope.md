@@ -25,18 +25,18 @@ Når ordren er godkendt, sendres en besked til lagerhotellet om levering.
 ## Scope
 Webservicen tilbyder en række andre operationer some **skal** implementeres som en del af dette projekt. 
 
-- setInventOperations 
-  - Oprettelse af varer
-- setSalesOperations_V4
-  - Oprettelse af ordrehoved
-- setSalesLineOperations
-  - Oprettelse af ordrelinje
-- getInventSum 
-  - Oplyser én beholdning pr. vare, som er den fysiske beholdning minus den åbne ordrebeholdning
-- getInventSumDetail
-  - Udvidet version af ’getInventSum’ operationen, har lidt flere informationer.
-- getPackingSlipInfoExtended
-  - Forespørger på ordrestatus. Når der er lavet følgeseddel på ordre, vil operationen bla. returnere T&T samt afsendte serienumre.
+- Oprettelse af varer
+  - setInventOperations
+- Oprettelse af ordrehoved
+  - setSalesOperations_V4
+- Oprettelse af ordrelinje
+  - setSalesLineOperations
+- Oplyser én beholdning pr. vare, som er den fysiske beholdning minus den åbne ordrebeholdning
+  - getInventSum 
+- Udvidet version af ’getInventSum’ operationen, har lidt flere informationer.
+  - getInventSumDetail
+- Forespørger på ordrestatus. Når der er lavet følgeseddel på ordre, vil operationen bla. returnere T&T samt afsendte serienumre.
+  - getPackingSlipInfoExtended
 
 ### Out of scope
 Webservicen tilbyder en række andre operationer some **ikke skal** implementeres som en del af dette projekt. 
