@@ -11,7 +11,7 @@ Based on the MSF Team Model
 | User Experience      | Solution Usability / User Readiness	| 
 | Architecture   	     | Solution Design  	  |  	
 | Development   	     | Solution Construction / Solution Verification  	| 
-| Test                 | Solution Valiation   | 
+| Test                 | Solution Validation   | 
 | Release / Operations | Solutions Deployment	| 
 | Program Management   | Solutions Delivery	| 
 
