@@ -7,13 +7,13 @@ Based on the MSF Team Model
 
 | Role 	               | Responsibility / Advocacy	    | Person
 |----------------------|----------------------|---------:
-| Product Management   | Solutions Definition	| Jesper
-| User Experience      | Solution Usability / User Readiness	| Jesper
-| Architecture   	     | Solution Design  	  | Finn 	
-| Development   	     | Solution Construction / Solution Verification  	| Finn
-| Test                 | Solution Valiation   | Jesper
-| Release / Operations | Solutions Deployment	| Jesper
-| Program Management   | Solutions Delivery	| Jesper
+| Product Management   | Solutions Definition	| 
+| User Experience      | Solution Usability / User Readiness	| 
+| Architecture   	     | Solution Design  	  |  	
+| Development   	     | Solution Construction / Solution Verification  	| 
+| Test                 | Solution Valiation   | 
+| Release / Operations | Solutions Deployment	| 
+| Program Management   | Solutions Delivery	| 
 
 ## Governance Track
 
