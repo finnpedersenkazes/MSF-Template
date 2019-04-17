@@ -52,5 +52,5 @@ Udviklingen tager udgangspunkt i beskrivelse af Ackro's webservice version 1.5 d
 
 ## Success Criteria
 
-- What does the goal look like? So we know when we have arrived at the finish line. 
-- How to prove that we have succeded in achieving the goal?
+- *What does the goal look like? So we know when we have arrived at the finish line.* 
+- *How to prove that we have succeded in achieving the goal?*
