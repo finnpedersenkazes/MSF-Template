@@ -1,13 +1,48 @@
 # Vision / Scope
 
+LibraTone integration til Ackro's Webservice
+
 ## Vision
-- Why are we doing this project? 
-- What will pay for this project?
-- In what context are we doing this project?
+
+LibraTone opgradere fra NAV 2015 til Business Central on Premise. 
+
+I den forbindelse skifter de lagerhotel til Ackro. http://ackro.dk/ 
+
+Requirements and Constraints
+- Integrationen skal bygges således at der er mindst muligt impact på standard Business Central versionen. 
+- Robustness. Løsningen skal så vidt muligt kunne køre uden opsyn, men tilbyde mulighed for support. 
+
+Beskrivelse af løsningen findes i dokumentet: Functional Specification.
+
+Design af løsningen findes i dokumentet: Technical Design. 
 
 ## Scope
-- Describe what is included in this project, but just as important 
-- describe what is not included (out of scope).  
+Webservicen tilbyder en række andre operationer some **skal** implementeres som en del af dette projekt. 
+
+- setInventOperations 
+  - Oprettelse af varer
+- setSalesOperations_V4
+  - Oprettelse af ordrehoved
+- setSalesLineOperations
+  - Oprettelse af ordrelinje
+- getInventSum 
+  - Oplyser én beholdning pr. vare, som er den fysiske beholdning minus den åbne ordrebeholdning
+- getInventSumDetail
+  - Udvidet version af ’getInventSum’ operationen, har lidt flere informationer.
+- getPackingSlipInfoExtended
+  - Forespørger på ordrestatus. Når der er lavet følgeseddel på ordre, vil operationen bla. returnere T&T samt afsendte serienumre.
+
+### Out of scope
+Webservicen tilbyder en række andre operationer some **ikke skal** implementeres som en del af dette projekt. 
+
+- getInventItemTrans
+- getInventSumBatch
+- getInventTurnOverRate
+- getPackingSlipInfo
+- setSalesOperations (v1, v2, v3)
+
+### Webservice beskrivelse
+Udviklingen tager udgangspunkt i beskrivelse af Ackro's webservice version 1.5 dateret 5-7-2018. 
 
 ## Success Criteria
 
