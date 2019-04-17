@@ -4,9 +4,11 @@ LibraTone integration til Ackro's Webservice
 
 ## Vision
 
-LibraTone opgradere fra NAV 2015 til Business Central on Premise. 
+LibraTone opgraderer fra NAV 2015 til Business Central on Premise. 
 
 I den forbindelse skifter de lagerhotel til Ackro. http://ackro.dk/ 
+
+Der skal bygges en en løsning til at kommunikere med lagerhotellet. 
 
 Requirements and Constraints
 - Integrationen skal bygges således at der er mindst muligt impact på standard Business Central versionen. 
@@ -15,6 +17,10 @@ Requirements and Constraints
 Beskrivelse af løsningen findes i dokumentet: Functional Specification.
 
 Design af løsningen findes i dokumentet: Technical Design. 
+
+## Bruger Scenario
+En ordre oprettes i Business Central til en kunde. 
+Når ordren er godkendt, sendres en besked til lagerhotellet om levering. 
 
 ## Scope
 Webservicen tilbyder en række andre operationer some **skal** implementeres som en del af dette projekt. 
