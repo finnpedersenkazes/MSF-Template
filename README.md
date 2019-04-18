@@ -7,19 +7,19 @@ Based on the MSF Team Model
 
 | Role 	               | Responsibility / Advocacy	    | Person
 |----------------------|----------------------|---------:
-| Product Management   | Solutions Definition	| 
-| User Experience      | Solution Usability / User Readiness	| 
-| Architecture   	     | Solution Design  	  |  	
-| Development   	     | Solution Construction / Solution Verification  	| 
-| Test                 | Solution Validation   | 
-| Release / Operations | Solutions Deployment	| 
-| Program Management   | Solutions Delivery	| 
+| Product Management   | Solutions Definition	| *Finn*
+| User Experience      | Solution Usability / User Readiness	| *Finn*
+| Architecture   	     | Solution Design  	  | *Finn*
+| Development   	     | Solution Construction / Solution Verification  	| *Finn*
+| Test                 | Solution Validation   | *Jesper*
+| Release / Operations | Solutions Deployment	| *Jesper*
+| Program Management   | Solutions Delivery	| *Jesper*
 
 ## Governance Track
 
 ### Envision Track
 #### Key Deliverables
-- [ ] Vision/Scope document
+- [X] Vision/Scope document
 - [ ] Customer and User Success Criteria
 - [ ] Initial risk assessment document
 #### Major Check Point
@@ -27,7 +27,8 @@ Based on the MSF Team Model
 
 ### Plan Track
 #### Key Deliverables
-- [ ] Functional Specifications
+- [X] Functional Specifications
+- [X] Technical Design
 - [ ] Master Project Plan
 - [ ] Master Project Schedule
 #### Major Check Point
