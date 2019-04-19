@@ -27,10 +27,22 @@ Webservicen tilbyder en række andre operationer some **skal** implementeres som
 
 - Oprettelse af varer
   - setInventOperations
+  - operationsType
+    - Insert
+    - Update
+    - Delete
 - Oprettelse af ordrehoved
   - setSalesOperations_V4
+  - operationsType
+    - Insert
+    - Update
+    - Delete
 - Oprettelse af ordrelinje
   - setSalesLineOperations
+  - operationsType
+    - Insert
+    - Update
+    - Delete
 - Oplyser én beholdning pr. vare, som er den fysiske beholdning minus den åbne ordrebeholdning
   - getInventSum 
 - Udvidet version af ’getInventSum’ operationen, har lidt flere informationer.
