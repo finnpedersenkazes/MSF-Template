@@ -1,6 +1,13 @@
 # MSF Template
 Trying to make a template for a small dynamics framework for a methodology based on Microsoft Solutions Framework (MSF).
 
+## Documents
+
+- Vision Scope
+- Success Criteria
+- Functional Specification
+- Technical Design
+
 ## Roles and responsibilities
 
 Based on the MSF Team Model
