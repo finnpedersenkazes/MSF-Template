@@ -1,5 +1,11 @@
-# MSF Template
-Trying to make a template for a small dynamics framework for a methodology based on Microsoft Solutions Framework (MSF).
+# MSF Libra Tone Project
+
+## Documents
+
+- Vision Scope
+- Success Criteria
+- Functional Specification
+- Technical Design
 
 ## Roles and responsibilities
 
@@ -21,7 +27,6 @@ Based on the MSF Team Model
 #### Key Deliverables
 - [X] Vision/Scope document
 - [ ] Customer and User Success Criteria
-- [ ] Initial risk assessment document
 #### Major Check Point
 - [ ] Vision/Scope Approved
 
@@ -29,37 +34,36 @@ Based on the MSF Team Model
 #### Key Deliverables
 - [X] Functional Specifications
 - [X] Technical Design
-- [ ] Master Project Plan
-- [ ] Master Project Schedule
 #### Major Check Point
-- [ ] Project Plans Approved
+- [ ] Usage Scenarios added to Functional Specification
+- [ ] Test Senarios added to Success Criteria
 
 ### Build Track
 #### Key Deliverables
-- [ ] Updated Master Plan, schedule and risk document (PM)
-- [ ] Frozen Functional Specification (PM)
-- [ ] Finalized design, source code and executables (Dev)
-- [ ] End-user training, test specifications, test cases with expected results (UI and Test)
+- [ ] Frozen Functional Specification
+- [ ] Finalized design added to Technical Design
+- [ ] source code and executables (Dev)
+- [ ] End-user training, test specifications, test cases with expected results (UI and Test) added to Success Criteria document
 #### Major Check Point
 - [ ] Scope Complete
 
 ### Stabilize Track
 #### Key Deliverables
-- [ ] Integrated solutions components
-- [ ] End-user help and training materials
-- [ ] End-user communications
-- [ ] Testing and Issue reports
+- [ ] End-user help and training materials added to Success Criteria document
+- [ ] Testing and Issue reports added to Success Criteria document
+- [ ] Frozen Technical Design
 #### Major Check Point
 - [ ] Release Readiness Approved
+- [ ] All documents finalized and approved by customer
+- [ ] Users have been trained and know how to report issues
 
 ### Deploy Track
 #### Key Deliverables
-- [ ] Operations and support information systems
-- [ ] Demonstrare Success Criteria Achieved
+- [ ] Installation and final tests
+- [ ] Demonstrate Success Criteria Achieved
 - [ ] End-user and administrator training
 #### Major Check Point
 - [ ] Deployment Completed
-
 
 
 
