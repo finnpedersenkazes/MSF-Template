@@ -3,7 +3,7 @@
 When I show you this, you will pay me. Right?
 
 - Lav et Demo Script
-- Lat et Test Setup
+- Lav et Test Setup
 
 ## Demo Script
 
