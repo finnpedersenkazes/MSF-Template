@@ -31,3 +31,10 @@ Respons-handleren behandler det svar der kommer tilbage fra lagerhotellet.
 
 ### Test mode and Production Mode
 Setup in Test and Setup in Production. 
+
+- Navn på produktions miliø
+- Automatisk sikring at test miliø anvender test setup
+- Produktionssetup
+- Testsetup
+- Indtænke Golive. 
+- Sikre at backup miliø aldrig køre på produktionsdata. 
