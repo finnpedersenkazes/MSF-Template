@@ -24,3 +24,7 @@ Respons-handleren behandler det svar der kommer tilbage fra lagerhotellet.
 
 *Det skal beskrives i detaljer, hvad der skal ske for hvert af de seks requests og for hvert af de mulige reponses*
 
+## Configuration and Setup
+*What behaviour has to be configurable?* 
+
+*What options have to me move to a setup table?*
