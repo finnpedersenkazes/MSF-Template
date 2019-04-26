@@ -28,3 +28,6 @@ Respons-handleren behandler det svar der kommer tilbage fra lagerhotellet.
 *What behaviour has to be configurable?* 
 
 *What options have to me move to a setup table?*
+
+### Test mode and Production Mode
+Setup in Test and Setup in Production. 
