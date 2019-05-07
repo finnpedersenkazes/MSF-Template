@@ -38,3 +38,261 @@ Setup in Test and Setup in Production.
 - Testsetup
 - Indtænke Golive. 
 - Sikre at backup miliø aldrig køre på produktionsdata. 
+
+# HTTP Requests
+
+## Test Setup
+* _configuration: Ack#2009
+* _company: test
+* _encryptionkey: sd%#gg9HwT2
+* _shopId: Test
+
+## getInventSum
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getInventSum xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_calcDate>2019-05-07T15:25:38+02:00</_calcDate>
+    </getInventSum>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <getInventSumResponse xmlns="http://Ackro.dk/Services/2010">
+            <InventSumRequest xmlns="http://www.dynacon.dk/2009/services/invent">
+                <InventSum xmlns="">
+                    <ItemId>00000001</ItemId>
+                    <ItemName>Standard vare</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>-19</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>915</ItemId>
+                    <ItemName>Test Testobject</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>-150</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>916</ItemId>
+                    <ItemName>Test US 1</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>-1</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>917</ItemId>
+                    <ItemName>Test Chew v 10</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>-10</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>922</ItemId>
+                    <ItemName>Test Chew</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>928</ItemId>
+                    <ItemName>Test Chew Copy</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>Handling</ItemId>
+                    <ItemName>Handling</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>Shipping</ItemId>
+                    <ItemName>Shipping</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>Test Testobject</ItemId>
+                    <ItemName>Test Testobject</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>V2-0056</ItemId>
+                    <ItemName>Thunder Frosted, 19.8g, Extra Strong Portion B</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+                <InventSum xmlns="">
+                    <ItemId>V2-0103</ItemId>
+                    <ItemName>Offroad Mel Oh!, 10g, Mini Portion</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+            </InventSumRequest>
+        </getInventSumResponse>
+    </soap:Body>
+</soap:Envelope>
+
+````
+
+## getInventSumDetails
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getInventSumDetails xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_calcDate>2019-05-07T15:25:38+02:00</_calcDate>
+    </getInventSumDetails>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <getInventSumDetailsResponse xmlns="http://Ackro.dk/Services/2010">
+            <getInventSumDetailsResult>
+                <InventSumDetailsSum>
+                    <InventSumDetails>
+                        <ItemId>00000001</ItemId>
+                        <ItemName>Standard vare</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>-9</QtyAvailablePhysical>
+                        <QtySalesOrder>-10</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>-19</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>915</ItemId>
+                        <ItemName>Test Testobject</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>-150</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>-150</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>916</ItemId>
+                        <ItemName>Test US 1</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>-1</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>-1</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>917</ItemId>
+                        <ItemName>Test Chew v 10</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>-10</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>-10</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>922</ItemId>
+                        <ItemName>Test Chew</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>928</ItemId>
+                        <ItemName>Test Chew Copy</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>Handling</ItemId>
+                        <ItemName>Handling</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>Shipping</ItemId>
+                        <ItemName>Shipping</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>Test Testobject</ItemId>
+                        <ItemName>Test Testobject</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>V2-0056</ItemId>
+                        <ItemName>Thunder Frosted, 19.8g, Extra Strong Portion B</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                    <InventSumDetails>
+                        <ItemId>V2-0103</ItemId>
+                        <ItemName>Offroad Mel Oh!, 10g, Mini Portion</ItemName>
+                        <PhysicalDate>2019-05-07T00:00:00</PhysicalDate>
+                        <QtyAvailablePhysical>0</QtyAvailablePhysical>
+                        <QtySalesOrder>0</QtySalesOrder>
+                        <QtyPurchOrder>0</QtyPurchOrder>
+                        <QtyAvailable>0</QtyAvailable>
+                        <CostPrice>0</CostPrice>
+                    </InventSumDetails>
+                </InventSumDetailsSum>
+            </getInventSumDetailsResult>
+        </getInventSumDetailsResponse>
+    </soap:Body>
+</soap:Envelope>
+````
+
+
