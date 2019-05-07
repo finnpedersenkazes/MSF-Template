@@ -431,3 +431,53 @@ Operationerne `update` og `delete` er ikke blevet testet.
     </soap:Body>
 </soap:Envelope>
 ````
+
+## setSalesLineOperations
+
+### operationsType
+* **insert <--** 
+* update
+* delete
+
+Operationerne `update` og `delete` er ikke blevet testet. 
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <setSalesLineOperations xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
+      <_operationsType>insert</_operationsType>
+      <_shopId>Test</_shopId>
+      <_supplierOrderNo>DA001</_supplierOrderNo>
+      <_itemId>LT001</_itemId>
+      <_itemName></_itemName>
+      <_salesQty>1</_salesQty>
+      <_salesPrice>1234.56</_salesPrice>
+    </setSalesLineOperations>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <setSalesLineOperationsResponse xmlns="http://Ackro.dk/Services/2010">
+            <setSalesLineOperationsResult>
+                <SalesOperations>
+                    <SalesOperations>
+                        <operationType>insert</operationType>
+                        <getResult>success</getResult>
+                        <returnMessage>Salgsordre: DA001, opdateret</returnMessage>
+                    </SalesOperations>
+                </SalesOperations>
+            </setSalesLineOperationsResult>
+        </setSalesLineOperationsResponse>
+    </soap:Body>
+</soap:Envelope>
+````
