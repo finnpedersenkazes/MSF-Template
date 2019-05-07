@@ -302,6 +302,8 @@ Setup in Test and Setup in Production.
 * update
 * delete
 
+Operationerne `update` og `delete` er også blevet testet. De giver tilsvarende responses. 
+
 ### Request Body
 ````
 <?xml version="1.0" encoding="utf-8"?>
