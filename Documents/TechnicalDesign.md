@@ -367,7 +367,7 @@ Vi må se på hvordan varen faktisk blev oprettet. For at se om det bare er eksp
 * update
 * delete
 
-Operationerne `update` og `delete` er også blevet testet. De giver tilsvarende responses. 
+Operationerne `update` og `delete` er ikke blevet testet. 
 
 ### Request Body
 ````
