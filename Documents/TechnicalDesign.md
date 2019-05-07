@@ -295,4 +295,66 @@ Setup in Test and Setup in Production.
 </soap:Envelope>
 ````
 
+## setInventOperations
+
+### operationsType
+* **insert <--** 
+* update
+* delete
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <setInventOperations xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
+      <_shopId>Test</_shopId>
+      <_itemId>LT001</_itemId>
+      <_itemGroup>vrg01</_itemGroup>
+      <_itemName>LT æøå ÆØÅ déjà aujourd'hui à côté</_itemName>
+      <_itemBarCodeType></_itemBarCodeType>
+      <_itemBarcode>7319009680131</_itemBarcode>
+      <_operationsType>insert</_operationsType>
+    </setInventOperations>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <setInventOperationsResponse xmlns="http://Ackro.dk/Services/2010">
+            <setInventOperationsResult>
+                <ItemOperations>
+                    <ItemOperations>
+                        <operationType>insert</operationType>
+                        <ReturnMessage>OK</ReturnMessage>
+                        <getResult>success</getResult>
+                    </ItemOperations>
+                </ItemOperations>
+            </setInventOperationsResult>
+        </setInventOperationsResponse>
+    </soap:Body>
+</soap:Envelope>
+````
+### Hvordan blev varen oprettet?
+Tilsyneladene er der umiddelbart et problem med special karakterer. 
+
+Vi må se på hvordan varen faktisk blev oprettet. For at se om det bare er eksporten af varenavnet der har et problem eller om det er ved oprettelsen. 
+
+
+````
+                <InventSum xmlns="">
+                    <ItemId>LT001</ItemId>
+                    <ItemName>LT ?????? ?????? d??j?? aujourd'hui ?? c??t??</ItemName>
+                    <Date>2019-05-07</Date>
+                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
+                    <CostPrice>0</CostPrice>
+                </InventSum>
+````
 
