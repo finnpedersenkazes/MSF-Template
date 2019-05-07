@@ -360,3 +360,74 @@ Vi må se på hvordan varen faktisk blev oprettet. For at se om det bare er eksp
                 </InventSum>
 ````
 
+## setSalesOperations_V4
+
+### operationsType
+* **insert <--** 
+* update
+* delete
+
+Operationerne `update` og `delete` er også blevet testet. De giver tilsvarende responses. 
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <setSalesOperations_V4 xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
+      <_operationsType>insert</_operationsType>
+      <_shopId>Test</_shopId>
+      <_supplierOrderNo>DA001</_supplierOrderNo>
+      <_currency>dkk</_currency>
+      <_languageId>da</_languageId>
+      <_custAccount>LTCU001</_custAccount>
+      <_eMail>info@me.com</_eMail>
+      <_phone>+4512345678</_phone>
+      <_phoneMobile>+4512345678</_phoneMobile>
+      <_custName>Customer Name</_custName>
+      <_custStreetLine1>Customer Street 1</_custStreetLine1>
+      <_custStreetLine2>Customer Street 2</_custStreetLine2>
+      <_custZipCode>2830</_custZipCode>
+      <_custCity>Virum</_custCity>
+      <_custCountry>Danmark</_custCountry>
+      <_custContact>Mr. Søren Ære Østergård</_custContact>
+      <_custVatNum>DK0123456789</_custVatNum>
+      <_dlvName>Delivery Name</_dlvName>
+      <_dlvStreetLine_1>Delivery Street 1</_dlvStreetLine_1>
+      <_dlvStreetLine_2>Delivery Street 2</_dlvStreetLine_2>
+      <_dlvZipCode>2830</_dlvZipCode>
+      <_dlvCity>Virum</_dlvCity>
+      <_dlvCountry>Denmark</_dlvCountry>
+      <_dlvContact>H.C. Andersen</_dlvContact>
+      <_dlvModeId></_dlvModeId>
+      <_servicePointId></_servicePointId>
+      <_receiptDateRequested>2019-05-13</_receiptDateRequested>
+      <_notePick>Pluknotat</_notePick>
+      <_noteDelivery>Leveringsnotat</_noteDelivery>
+    </setSalesOperations_V4>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <setSalesOperations_V4Response xmlns="http://Ackro.dk/Services/2010">
+            <setSalesOperations_V4Result>
+                <SalesOperations>
+                    <SalesOperations>
+                        <operationType>insert</operationType>
+                        <getResult>success</getResult>
+                        <returnMessage>Ackro Salgsordre: SO00000225, oprettet</returnMessage>
+                    </SalesOperations>
+                </SalesOperations>
+            </setSalesOperations_V4Result>
+        </setSalesOperations_V4Response>
+    </soap:Body>
+</soap:Envelope>
+````
