@@ -481,3 +481,48 @@ Operationerne `update` og `delete` er ikke blevet testet.
     </soap:Body>
 </soap:Envelope>
 ````
+
+## getPackingSlipInfoExtended
+
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getPackingSlipInfoExtended xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
+      <_shopId>Test</_shopId>
+      <_supplierOrderNo>DA001</_supplierOrderNo>
+    </getPackingSlipInfoExtended>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <getPackingSlipInfoExtendedResponse xmlns="http://Ackro.dk/Services/2010">
+            <getPackingSlipInfoExtendedResult>
+                <PackingSlipInfo>
+                    <PackingSlipInfo>
+                        <returnMessage>Ordre DA001 modtaget hos Ackro</returnMessage>
+                        <getResult>success</getResult>
+                        <getSalesOrderStatus>none</getSalesOrderStatus>
+                        <getPackingSlipId />
+                        <getPackingSlipDate>1900-01-01T00:00:00</getPackingSlipDate>
+                        <getTrackNTraceId />
+                        <getItemId>LT001</getItemId>
+                        <getDlvQty>1</getDlvQty>
+                        <getSerialNumber />
+                    </PackingSlipInfo>
+                </PackingSlipInfo>
+            </getPackingSlipInfoExtendedResult>
+        </getPackingSlipInfoExtendedResponse>
+    </soap:Body>
+</soap:Envelope>
+````
