@@ -147,6 +147,19 @@ bliver oprettet korrekt i Ackro's system.
 
 ## getInventSum
 
+`getInventSum` operationen returnere en liste med alle vare i lagerhotellet og kan anvendes til følgende formål
+
+* Undersøge om en given vare oprettet i lagerhotellet
+* Sammenligne om oplysningerne i lagerhotellet stemmer overens med de tilsvarende oplysninger i BC
+* Varenavn: `ItemName` 
+* Antal på lager: `AvailablePhysicalQty`
+* Vares kostpris i Ackro's Axapta: `CostPrice`
+
+Spørgsmålet er hvad skal disse oplysninger bruges til. 
+Skal BC opdateres med de fysiske antal på laget? 
+Skal varenavnet opdateres på lagerhotellet? 
+
+
 ### Request Body
 ````
 <?xml version="1.0" encoding="utf-8"?>
@@ -253,6 +266,21 @@ bliver oprettet korrekt i Ackro's system.
 ````
 
 ## getInventSumDetails
+
+`getInventSumDetails` giver lidt flere oplysninger end `getInventSum` om lager beholdningen. 
+
+For en given data får man følgende oplysninger: 
+
+* `QtyAvailablePhysical`: 10 
+* `QtySalesOrder`: -4
+* `QtyPurchOrder`: 0
+* `QtyAvailable`: 6
+
+`QtyAvailable` er givet ved denne formel:
+
+````
+QtyAvailable = QtyAvailablePhysical + QtySalesOrder + QtyPurchOrder
+````
 
 ### Request Body
 ````
@@ -394,6 +422,9 @@ bliver oprettet korrekt i Ackro's system.
 ````
 
 ## setInventOperations
+Denne `setInventOperations` operationen skal kaldes før `setSalesOperations` og `setSalesLineOperations`.
+Det er klart at en vare skal findes før den kan sælges. 
+Denne operation anvendes ligeledes hvis vares navn eller stregkode skal opdateres. 
 
 ### operationsType
 * **insert <--** 
@@ -459,6 +490,10 @@ Vi må se på hvordan varen faktisk blev oprettet. For at se om det bare er eksp
 ````
 
 ## setSalesOperations_V4
+
+`setSalesOperations_V4` anvendes til at oprette Ordrehovedet.
+Det er også muligt at opdatere ordrehovedet, men det er vigtigt at klarlægge under hvilke omstændigheder det er muligt. 
+
 
 ### operationsType
 * **insert <--** 
@@ -531,6 +566,10 @@ Operationerne `update` og `delete` er ikke blevet testet.
 ````
 
 ## setSalesLineOperations
+Da der ikke er noget linienummer, må man formode at `setSalesLineOperations` kun kan opretten én linie pr. varenummer. 
+Det er også en precondition som vi skal være opmærksomme på.
+
+Som for Ordrehovedet, skal vi også være opmærksomme på hvornår det er muligt at rette i en ordrelinje. 
 
 ### operationsType
 * **insert <--** 
@@ -580,53 +619,16 @@ Operationerne `update` og `delete` er ikke blevet testet.
 </soap:Envelope>
 ````
 
-## getPackingSlipInfoExtended
-
-
-### Request Body
-````
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <getPackingSlipInfoExtended xmlns="http://Ackro.dk/Services/2010">
-      <_configuration>Ack#2009</_configuration>
-      <_company>test</_company>
-      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
-      <_shopId>Test</_shopId>
-      <_supplierOrderNo>DA001</_supplierOrderNo>
-    </getPackingSlipInfoExtended>
-  </soap:Body>
-</soap:Envelope>
-````
-
-### Response
-````
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <soap:Body>
-        <getPackingSlipInfoExtendedResponse xmlns="http://Ackro.dk/Services/2010">
-            <getPackingSlipInfoExtendedResult>
-                <PackingSlipInfo>
-                    <PackingSlipInfo>
-                        <returnMessage>Ordre DA001 modtaget hos Ackro</returnMessage>
-                        <getResult>success</getResult>
-                        <getSalesOrderStatus>none</getSalesOrderStatus>
-                        <getPackingSlipId />
-                        <getPackingSlipDate>1900-01-01T00:00:00</getPackingSlipDate>
-                        <getTrackNTraceId />
-                        <getItemId>LT001</getItemId>
-                        <getDlvQty>1</getDlvQty>
-                        <getSerialNumber />
-                    </PackingSlipInfo>
-                </PackingSlipInfo>
-            </getPackingSlipInfoExtendedResult>
-        </getPackingSlipInfoExtendedResponse>
-    </soap:Body>
-</soap:Envelope>
-````
-
-
 ## getPackingSlipInfoExtended_V3
+Lagerhotellet kan ikke kalde tilbage og fortælle os at en ordre har skiftet status. 
+Det skal vi selv sørge for at holde øje med. 
+
+Det er derfor vigtig, at vi reglmæssigt forespørger på de åbne ordre, hvad deres status er. 
+
+Ordrestatus kan være: Modtaget, Afsendt, eller ukendt. 
+
+Hvis ordren er afsendt fra lagerhotellet, skal vi have opdateret Ordren i BC. 
+
 
 ### Request Body
 ````
@@ -671,8 +673,6 @@ Operationerne `update` og `delete` er ikke blevet testet.
     </soap:Body>
 </soap:Envelope>
 ````
-
-
 
 
 ## Kilder
