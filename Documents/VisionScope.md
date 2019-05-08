@@ -18,7 +18,7 @@ Beskrivelse af løsningen findes i dokumentet: Functional Specification.
 
 Design af løsningen findes i dokumentet: Technical Design. 
 
-## Bruger Scenario
+## Eksempel på Bruger Scenario
 En ordre oprettes i Business Central til en kunde. 
 Når ordren er godkendt, sendres en besked til lagerhotellet om levering. 
 
@@ -27,28 +27,19 @@ Webservicen tilbyder en række andre operationer some **skal** implementeres som
 
 - Oprettelse af varer
   - setInventOperations
-  - operationsType
-    - Insert
-    - Update
-    - Delete
+  - operationsType: Insert, Update eller Delete
 - Oprettelse af ordrehoved
   - setSalesOperations_V4
-  - operationsType
-    - Insert
-    - Update
-    - Delete
+  - operationsType: Insert, Update eller Delete
 - Oprettelse af ordrelinje
   - setSalesLineOperations
-  - operationsType
-    - Insert
-    - Update
-    - Delete
+  - operationsType: Insert, Update eller Delete
 - Oplyser én beholdning pr. vare, som er den fysiske beholdning minus den åbne ordrebeholdning
   - getInventSum 
 - Udvidet version af ’getInventSum’ operationen, har lidt flere informationer.
   - getInventSumDetail
 - Forespørger på ordrestatus. Når der er lavet følgeseddel på ordre, vil operationen bla. returnere T&T samt afsendte serienumre.
-  - getPackingSlipInfoExtended
+  - getPackingSlipInfoExtended_V3
 
 ### Out of scope
 Webservicen tilbyder en række andre operationer some **ikke skal** implementeres som en del af dette projekt. 
@@ -58,6 +49,7 @@ Webservicen tilbyder en række andre operationer some **ikke skal** implementere
 - getInventTurnOverRate
 - getPackingSlipInfo
 - setSalesOperations (v1, v2, v3)
+- getPackingSlipInfoExtended (v1 og v2)
 
 ### Webservice beskrivelse
 Udviklingen tager udgangspunkt i beskrivelse af Ackro's webservice version 1.5 dateret 5-7-2018. 
