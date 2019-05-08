@@ -113,7 +113,7 @@ Men det gøres altid på en bestemt måde.
 Hvis udbyderen af webservicen ønsker at ændre sit interface, for eksempel ved at tilføje et nyt felt til en eksisterende 
 operation, gøres dette ved at tilbyde en ny opration. I Ackro's tilfælde kan man se at funktionen til at oprette
 ordrehovder har ændres sig over tid. Den seneste operation hedder nu `setSalesOperations_V4`. 
-Det er altså den fjerde version. 
+Det er altså den fjerde version. Tilsvarende for operationen `getPackingSlipInfoExtended_V3`.
 
 Disse ændringer vil også ske i fremtiden. Det gode er at når Ackro introduceret en ny version af setSalesOperations, 
 så virker den gamle stadigvæk. Det vil sige at vi som forbrugere af Ackro's webservice har lidt tid til at implementere
@@ -142,6 +142,8 @@ Det er vigtig, især ved requests der opretter data at formatet er UTF-8. Dette 
 
 **Content-Type: text/xml; charset=utf-8**
 
+Dette sikre at varenavne, kontaktpersoner, adresser mm. der indeholder special tegn som æ, ø og å eller accenter som é eller ô 
+bliver oprettet korrekt i Ackro's system. 
 
 ## getInventSum
 
