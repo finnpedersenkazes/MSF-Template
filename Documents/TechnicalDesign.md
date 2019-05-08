@@ -629,6 +629,8 @@ Ordrestatus kan være: Modtaget, Afsendt, eller ukendt.
 
 Hvis ordren er afsendt fra lagerhotellet, skal vi have opdateret Ordren i BC. 
 
+`getPackingSlipInfoExtended_V3` skal kaldes for hver enkelt ordre og formodentlig mindst en gang om dagen.  
+
 
 ### Request Body
 ````
