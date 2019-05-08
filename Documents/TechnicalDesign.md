@@ -1,23 +1,34 @@
 # Technical Design
 
-*Describe how you intend to implement the solution.*
+Dette er en beskrivelse af hvordan løsningen skal implementeres. 
 
 ## Beskrivelse af Data flow
+At oprette en ny vare eller oprette en ny salgsordre er *ikke* en hændelse, der trigger en hændelse mod lagerhotellet. 
 
-At oprette en ny vare eller opretten en ny salgsordre er *ikke* en hændelse der trigger en hændelse mod lagerhotellet. 
+Brugeren skal specifikt indikere at varen er klar til at blive oprettet i lagerhotellet. 
+Ligeledes skal brugeren indikere at ordren er klar til levering før en besked bliver sendt til lagerhotellet.
 
-Brugeren skal specifikt indikere at varen er klar til at blive oprettet i lagerhotellet. Ligeledes skal brugeren indikere at ordren er klar til levering før en besked bliver sendt til lagerhotellet. 
+Kunder oprettes i lagerhotellet samtidigt med oprettelse af ordren. 
 
 ## Event Log
-Når man er klar, vare eller salgsordre, oprettes en Event i Eventloggen med status klar (Ready).
+Først når man er klar til at oprette en vare eller til at levere salgsordre, oprettes en Event i Eventloggen med status klar `Ready`.
 
 ## Event Handler
 En event-handler kan køre automatisk eller fyres af manuelt. 
 Event-handleren leder efter events som er klar til at blive behandlet. 
+I opsætningen skal man kunne angive med hvilken frekvens event-handleren skal køre. 
 
 En event skal oversættes til en XML body, som Event-handleren sender i et HTTP POST request til lagerhotellet og modtager et svar. 
 
-*Formatet af hvert af de seks reqeusts skal beskrives i detaljer. Se HTTP requests herunder.*
+*Formatet af hvert af de seks reqeusts er beskrevet i detaljer med eksempler i afsnittet HTTP requests herunder.*
+
+### Dobbelt hændelser
+Det kan forekomme at opdatere en vare eller en salgsordre flere gange inden Event Handlere kommer til at behandle hændelse. 
+Det kan se hvis Event Handleren har været stoppet i en periode. 
+
+Det er vigtigt at ved behandlingen af en event at det sikres at man behandler den seneste og at alle andre tidligere 
+events vedrørende den samme vare eller ordre, får en status `Udløbet` der gør at de bliver ignorert fremover. 
+
 
 ### Preconditions
 Det er vigtigt først og fremmest at forstå hvorfor et request kan fejle og fra starten forsøge at undgå disse situationer
@@ -25,6 +36,8 @@ før requests sendes. Det vil sige at Event Handleren skal kunne afvise en event
 oplysninger for at requestet kan sendes med forventet succes. Dette kaldes for **preconditions**. 
 
 EventLoggen's status felt skal altså have en option `Afvist`.
+
+Et eksempel på en precondition er at man ikke skal sælge en vare, der ikke først er oprettet i lagerhotellet. 
 
 ## Respons Handler
 Respons-handleren behandler det svar der kommer tilbage fra lagerhotellet. 
@@ -46,7 +59,6 @@ opdatere de tilsvarende tabeller i BC.
 * Hvis svaret indeholder en `ReturnMessage` skrives denne også i EventLoggen. 
 * I sidste instans bør systemet også kunne håndtere, at der går noget galt i opdateringen ved behandlingen af svaret af hensyn til 
 efterfølgende support og vedligeholdes af systemt. For eksempel, hvis man skulle havne i en uventet situation. 
-
 
 ### Failed
 Hvis requestet fejler, er det vigtigt at Respons Handleren kan opdatere EventLoggen med oplysninger om hvorfor noget gik galt. 
@@ -71,6 +83,14 @@ løsningen er robust.
 ## Configuration and Setup
 *What behaviour has to be configurable?* 
 *What options have to be moved to a setup table?*
+
+Opsætningsoplysninger kunne typisk være
+
+* Frekvens for kørsel af Event Handler
+* Emails på personer der skal informeres hvis noget går galt
+* Sti til lagerhotellets webservice
+* ...
+
 
 ## Fremtidige opgraderinger
 APIer, alså interfaces, til systemer som Ackro's webservice udvikler sig over tid. 
