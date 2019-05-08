@@ -473,21 +473,6 @@ Operationerne `update` og `delete` er også blevet testet. De giver tilsvarende 
     </soap:Body>
 </soap:Envelope>
 ````
-### Hvordan blev varen oprettet?
-Tilsyneladene er der umiddelbart et problem med special karakterer. 
-
-Vi må se på hvordan varen faktisk blev oprettet. For at se om det bare er eksporten af varenavnet der har et problem eller om det er ved oprettelsen. 
-
-
-````
-                <InventSum xmlns="">
-                    <ItemId>LT001</ItemId>
-                    <ItemName>LT ?????? ?????? d??j?? aujourd'hui ?? c??t??</ItemName>
-                    <Date>2019-05-07</Date>
-                    <AvailablePhysicalQty>0</AvailablePhysicalQty>
-                    <CostPrice>0</CostPrice>
-                </InventSum>
-````
 
 ## setSalesOperations_V4
 
