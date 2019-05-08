@@ -23,11 +23,13 @@ En event skal oversættes til en XML body, som Event-handleren sender i et HTTP 
 *Formatet af hvert af de seks reqeusts er beskrevet i detaljer med eksempler i afsnittet HTTP requests herunder.*
 
 ### Dobbelt hændelser
-Det kan forekomme at opdatere en vare eller en salgsordre flere gange inden Event Handlere kommer til at behandle hændelse. 
-Det kan se hvis Event Handleren har været stoppet i en periode. 
+Det kan forekomme at man opdaterer en vare eller en salgsordre flere gange inden Event-handleren kommer til at behandle hændelsen. 
+Det kan ske hvis Event Handleren har været stoppet i en periode. 
 
-Det er vigtigt at ved behandlingen af en event at det sikres at man behandler den seneste og at alle andre tidligere 
-events vedrørende den samme vare eller ordre, får en status `Udløbet` der gør at de bliver ignorert fremover. 
+Det er vigtigt, at ved behandlingen af en event at det sikres at man behandler den seneste og at alle andre tidligere 
+events vedrørende den samme vare eller ordre, får en status `Udløbet`, der gør at de bliver ignorert fremover. 
+
+Alternativt, kan man ved oprettelsen af hændelsen sikre sig at en eksisterende event bliver opdateret i stedet for at oprettet en ny.
 
 
 ### Preconditions
@@ -35,12 +37,15 @@ Det er vigtigt først og fremmest at forstå hvorfor et request kan fejle og fra
 før requests sendes. Det vil sige at Event Handleren skal kunne afvise en event, hvis denne ikke indeholder tilstrækkelige 
 oplysninger for at requestet kan sendes med forventet succes. Dette kaldes for **preconditions**. 
 
-EventLoggen's status felt skal altså have en option `Afvist`.
+EventLoggen's status felt skal altså have en option `Afvist` og med en begrundelse for hvorfor. 
 
 Et eksempel på en precondition er at man ikke skal sælge en vare, der ikke først er oprettet i lagerhotellet. 
+Eller at varen ikke er på lager i tilstrækkeligt antal for at kunne behandle ordren. 
+
+Det er vigtig at vi kortlægger og behandler disse tilfælde i dokumentet Functional Specification. 
 
 ## Respons Handler
-Respons-handleren behandler det svar der kommer tilbage fra lagerhotellet. 
+Respons-handleren behandler det svar, der kommer tilbage fra lagerhotellet. 
 
 Svaret er i XML format, som beskrevet under HTTP requests herunder. 
 Hvert request giver anledning til forskellige mulige svar svarende til requestet, herunder også fejl. 
@@ -62,16 +67,15 @@ efterfølgende support og vedligeholdes af systemt. For eksempel, hvis man skull
 
 ### Failed
 Hvis requestet fejler, er det vigtigt at Respons Handleren kan opdatere EventLoggen med oplysninger om hvorfor noget gik galt. 
-Hvis requestet eller har den rette syntax, burde forklaringen komme tilbage i feltet `returnMessage`. 
+Hvis requestet ellers har den rette syntax, burde forklaringen komme tilbage i feltet `returnMessage`. 
 
-Skulle lagerhotellets interface ikke svare tilbage, er det tilsvarende op til Respons Handlere at sikre at håndtere denne situation. 
+Skulle lagerhotellets interface ikke svare tilbage, er det tilsvarende op til Respons-Handleren at håndtere denne situation. 
 
 For eksempel på denne måde:
 
 * Sende en e-mail.
 * Suspendere Event Handleren i en periode. 
 * Sikre at Eventen i EventLoggen bliver behandlet når Event Handleren igen bliver aktiveret. 
-
 
 *Det skal beskrives i detaljer, hvad der skal ske for hvert af de seks requests og for hvert af de mulige reponses*
 
@@ -81,8 +85,6 @@ der ikke blev behandlet. Den er altså en vigtig støtte til dem der skal suppor
 løsningen er robust. 
 
 ## Configuration and Setup
-*What behaviour has to be configurable?* 
-*What options have to be moved to a setup table?*
 
 Opsætningsoplysninger kunne typisk være
 
@@ -91,8 +93,19 @@ Opsætningsoplysninger kunne typisk være
 * Sti til lagerhotellets webservice
 * ...
 
+### Test Setup
+* _configuration: Ack#2009
+* _company: test
+* _encryptionkey: sd%#gg9HwT2
+* _shopId: Test
 
-## Fremtidige opgraderinger
+### Production Setup
+* _configuration: ????
+* _company: ????
+* _encryptionkey: ????
+* _shopId: ????
+
+## Fremtidige opgraderinger af Webservicen
 APIer, alså interfaces, til systemer som Ackro's webservice udvikler sig over tid. 
 
 Men det gøres altid på en bestemt måde. 
@@ -124,11 +137,11 @@ Setup in Test and Setup in Production.
 
 # HTTP Requests
 
-## Test Setup
-* _configuration: Ack#2009
-* _company: test
-* _encryptionkey: sd%#gg9HwT2
-* _shopId: Test
+## Header
+Det er vigtig, især ved requests der opretter data at formatet er UTF-8. Dette gøres ved at tilføje følgende ligne til Headeren. 
+
+**Content-Type: text/xml; charset=utf-8**
+
 
 ## getInventSum
 
@@ -609,3 +622,76 @@ Operationerne `update` og `delete` er ikke blevet testet.
     </soap:Body>
 </soap:Envelope>
 ````
+
+
+## getPackingSlipInfoExtended_V3
+
+### Request Body
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getPackingSlipInfoExtended_V3 xmlns="http://Ackro.dk/Services/2010">
+      <_configuration>Ack#2009</_configuration>
+      <_company>test</_company>
+      <_encryptionkey>sd%#gg9HwT2</_encryptionkey>
+      <_shopId>Test</_shopId>
+      <_supplierOrderNo>DA001</_supplierOrderNo>
+    </getPackingSlipInfoExtended_V3>
+  </soap:Body>
+</soap:Envelope>
+````
+
+### Response
+````
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <soap:Body>
+        <getPackingSlipInfoExtended_V3Response xmlns="http://Ackro.dk/Services/2010">
+            <getPackingSlipInfoExtended_V3Result>
+                <PackingSlipInfo>
+                    <PackingSlipInfo_V3>
+                        <returnMessage>Ordre DA001 modtaget hos Ackro</returnMessage>
+                        <getResult>success</getResult>
+                        <getSalesOrderStatus>none</getSalesOrderStatus>
+                        <getPackingSlipId />
+                        <getPackingSlipDate>1900-01-01T00:00:00</getPackingSlipDate>
+                        <getTrackNTraceId />
+                        <getItemId>LT001</getItemId>
+                        <getDlvQty>1</getDlvQty>
+                        <getSerialNumber />
+                        <getBatchNumber />
+                        <getTrackNTraceList />
+                    </PackingSlipInfo_V3>
+                </PackingSlipInfo>
+            </getPackingSlipInfoExtended_V3Result>
+        </getPackingSlipInfoExtended_V3Response>
+    </soap:Body>
+</soap:Envelope>
+````
+
+
+
+
+## Kilder
+Hermed oplysningerne til Ackro’s TEST regnskab.
+
+WSDL: http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?wsdl
+
+URL: http://mail.ackro.dk/AcKroInvent/InventItemService.asmx
+ 
+
+Mht. eksempler på SOAP kaldet, fremgår de egentlig af de enkelte operationer på servicen, så det er nok nemmest, at du ser eksemplerne der:
+
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=setInventOperations
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=setSalesOperations_V4
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=setSalesLineOperations
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=getPackingSlipInfoExtended
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=getInventSum
+http://mail.ackro.dk/AcKroInvent/InventItemService.asmx?op=getInventSumDetails
+ 
+
+Hvis man ikke ønsker at udfylde et felt, så inkluderes feltet som et tomt element, eks. <_itemBarcode/>. 
+Ellers vil forespørgslen ikke overholde skemaet, og webserveren vil give en fejl.
+
+ 
