@@ -684,3 +684,136 @@ Hvis man ikke ønsker at udfylde et felt, så inkluderes feltet som et tomt elem
 Ellers vil forespørgslen ikke overholde skemaet, og webserveren vil give en fejl.
 
  
+ 
+# C/AL Code Patterns
+
+## OBJECT Table 407 Graph Mail Setup
+
+````
+    LOCAL PROCEDURE SendWebRequest@5(Payload@1000 : Text;Token@1009 : Text) : Boolean;
+    VAR
+      TempBlob@1001 : TEMPORARY Record 99008535;
+      HttpWebRequestMgt@1002 : Codeunit 1297;
+      GraphMail@1006 : Codeunit 405;
+      HttpStatusCode@1005 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      ResponseHeaders@1004 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      ResponseInStream@1003 : InStream;
+    BEGIN
+      TempBlob.INIT;
+      TempBlob.Blob.CREATEINSTREAM(ResponseInStream);
+
+      HttpWebRequestMgt.Initialize(STRSUBSTNO('%1/v1.0/me/sendMail',GraphMail.GetGraphDomain));
+      HttpWebRequestMgt.SetMethod('POST');
+      HttpWebRequestMgt.SetContentType('application/json');
+      HttpWebRequestMgt.SetReturnType('application/json');
+      HttpWebRequestMgt.AddHeader('Authorization',STRSUBSTNO('Bearer %1',Token));
+      HttpWebRequestMgt.AddBodyAsText(Payload);
+
+      IF NOT HttpWebRequestMgt.GetResponse(ResponseInStream,HttpStatusCode,ResponseHeaders) THEN BEGIN
+        HttpWebRequestMgt.ProcessFaultResponse('');
+        EXIT(FALSE);
+      END;
+
+      EXIT(TRUE);
+    END;
+````
+
+## OBJECT Codeunit 1237 Get Json Structure
+
+````
+OBJECT Codeunit 1237 Get Json Structure
+{
+  OBJECT-PROPERTIES
+  {
+    Date=24-03-19;
+    Time=12:00:00;
+    Version List=NAVW114.00;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      HttpWebRequestMgt@1004 : Codeunit 1297;
+      JsonConvert@1000 : DotNet "'Newtonsoft.Json'.Newtonsoft.Json.JsonConvert";
+      GLBHttpStatusCode@1003 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      GLBResponseHeaders@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      FileContent@1001 : Text;
+      InvalidResponseErr@1005 : TextConst 'DAN=Svaret var ugyldigt.;ENU=The response was not valid.';
+
+    [Internal]
+    PROCEDURE GenerateStructure@2(Path@1000 : Text;VAR XMLBuffer@1001 : Record 1235);
+    VAR
+      TempBlob@1010 : Record 99008535;
+      ResponseTempBlob@1003 : Record 99008535;
+      XMLBufferWriter@1002 : Codeunit 1235;
+      JsonInStream@1007 : InStream;
+      XMLOutStream@1009 : OutStream;
+      File@1006 : File;
+    BEGIN
+      IF File.OPEN(Path) THEN
+        File.CREATEINSTREAM(JsonInStream)
+      ELSE BEGIN
+        CLEAR(ResponseTempBlob);
+        ResponseTempBlob.INIT;
+        ResponseTempBlob.Blob.CREATEINSTREAM(JsonInStream);
+        CLEAR(HttpWebRequestMgt);
+        HttpWebRequestMgt.Initialize(Path);
+        HttpWebRequestMgt.SetMethod('POST');
+        HttpWebRequestMgt.SetReturnType('application/json');
+        HttpWebRequestMgt.SetContentType('application/x-www-form-urlencoded');
+        HttpWebRequestMgt.AddHeader('Accept-Encoding','utf-8');
+        HttpWebRequestMgt.GetResponse(JsonInStream,GLBHttpStatusCode,GLBResponseHeaders);
+      END;
+
+      TempBlob.INIT;
+      TempBlob.Blob.CREATEOUTSTREAM(XMLOutStream);
+      IF NOT JsonToXML(JsonInStream,XMLOutStream) THEN
+        IF NOT JsonToXMLCreateDefaultRoot(JsonInStream,XMLOutStream) THEN
+          ERROR(InvalidResponseErr);
+
+      XMLBufferWriter.GenerateStructure(XMLBuffer,XMLOutStream);
+    END;
+
+    [TryFunction]
+    [External]
+    PROCEDURE JsonToXML@1(JsonInStream@1000 : InStream;VAR XMLOutStream@1001 : OutStream);
+    VAR
+      XmlDocument@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      NewContent@1002 : Text;
+    BEGIN
+      WHILE JsonInStream.READ(NewContent) > 0 DO
+        FileContent += NewContent;
+
+      XmlDocument := JsonConvert.DeserializeXmlNode(FileContent);
+      XmlDocument.Save(XMLOutStream);
+    END;
+
+    [TryFunction]
+    [External]
+    PROCEDURE JsonToXMLCreateDefaultRoot@3(JsonInStream@1005 : InStream;VAR XMLOutStream@1000 : OutStream);
+    VAR
+      XmlDocument@1001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      NewContent@1002 : Text;
+    BEGIN
+      WHILE JsonInStream.READ(NewContent) > 0 DO
+        FileContent += NewContent;
+
+      FileContent := '{"root":' + FileContent + '}';
+
+      XmlDocument := JsonConvert.DeserializeXmlNode(FileContent,'root');
+      XmlDocument.Save(XMLOutStream);
+    END;
+
+    BEGIN
+    END.
+  }
+}
+````
+
+
+## 
