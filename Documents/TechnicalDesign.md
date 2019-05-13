@@ -816,4 +816,442 @@ OBJECT Codeunit 1237 Get Json Structure
 ````
 
 
-## 
+## OBJECT Codeunit 1281 Update Currency Exchange Rates
+
+````
+    LOCAL PROCEDURE ExecuteWebServiceRequest@1(CurrExchRateUpdateSetup@1001 : Record 1650;VAR ResponseInStream@1003 : InStream);
+    VAR
+      HttpStatusCode@1000 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      ResponseHeaders@1004 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      URL@1002 : Text;
+    BEGIN
+      CurrExchRateUpdateSetup.GetWebServiceURL(URL);
+      HttpWebRequestMgt.Initialize(URL);
+      HttpWebRequestMgt.SetReturnType('application/xml,text/xml');
+
+      IF NOT GUIALLOWED THEN
+        HttpWebRequestMgt.DisableUI;
+
+      HttpWebRequestMgt.SetTraceLogEnabled(CurrExchRateUpdateSetup."Log Web Requests");
+
+      IF NOT HttpWebRequestMgt.GetResponse(ResponseInStream,HttpStatusCode,ResponseHeaders) THEN
+        ShowHttpError(CurrExchRateUpdateSetup,URL);
+    END;
+````
+
+## OBJECT Codeunit 1290 SOAP Web Service Request Mgt.
+
+````
+OBJECT Codeunit 1290 SOAP Web Service Request Mgt.
+{
+  OBJECT-PROPERTIES
+  {
+    Date=24-03-19;
+    Time=12:00:00;
+    Version List=NAVW114.00;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      BodyPathTxt@1001 : TextConst '@@@={Locked};DAN=/soap:Envelope/soap:Body;ENU=/soap:Envelope/soap:Body';
+      ContentTypeTxt@1000 : TextConst '@@@={Locked};DAN="multipart/form-data; charset=utf-8";ENU="multipart/form-data; charset=utf-8"';
+      FaultStringXmlPathTxt@1012 : TextConst '@@@={Locked};DAN=/soap:Envelope/soap:Body/soap:Fault/faultstring;ENU=/soap:Envelope/soap:Body/soap:Fault/faultstring';
+      NoRequestBodyErr@1015 : TextConst 'DAN=Anmodningsindholdet er ikke angivet.;ENU=The request body is not set.';
+      NoServiceAddressErr@1017 : TextConst 'DAN=Webtjeneste-URI''en er ikke angivet.;ENU=The web service URI is not set.';
+      ExpectedResponseNotReceivedErr@1009 : TextConst 'DAN=De forventede data blev ikke modtaget fra webtjenesten.;ENU=The expected data was not received from the web service.';
+      SchemaNamespaceTxt@1007 : TextConst '@@@={Locked};DAN=http://www.w3.org/2001/XMLSchema;ENU=http://www.w3.org/2001/XMLSchema';
+      SchemaInstanceNamespaceTxt@1006 : TextConst '@@@={Locked};DAN=http://www.w3.org/2001/XMLSchema-instance;ENU=http://www.w3.org/2001/XMLSchema-instance';
+      SecurityUtilityNamespaceTxt@1003 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd';
+      SecurityExtensionNamespaceTxt@1004 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
+      SoapNamespaceTxt@1002 : TextConst '@@@={Locked};DAN=http://schemas.xmlsoap.org/soap/envelope/;ENU=http://schemas.xmlsoap.org/soap/envelope/';
+      UsernameTokenNamepsaceTxt@1005 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText';
+      TempDebugLogTempBlob@1010 : TEMPORARY Record 99008535;
+      ResponseBodyTempBlob@1020 : Record 99008535;
+      ResponseInStreamTempBlob@1019 : Record 99008535;
+      Trace@1016 : Codeunit 1292;
+      GlobalRequestBodyInStream@1022 : InStream;
+      HttpWebResponse@1021 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebResponse";
+      GlobalPassword@1013 : Text;
+      GlobalURL@1014 : Text;
+      GlobalUsername@1008 : Text;
+      TraceLogEnabled@1011 : Boolean;
+      GlobalTimeout@1024 : Integer;
+      InternalErr@1028 : TextConst 'DAN=Fjerntjenesten har returneret f�lgende fejlmeddelelse:\\;ENU=The remote service has returned the following error message:\\';
+      GlobalContentType@1026 : Text;
+      GlobalSkipCheckHttps@1018 : Boolean;
+      GlobalProgressDialogEnabled@1023 : Boolean;
+      InvalidTokenFormatErr@1025 : TextConst 'DAN=Tokenet skal v�re i JWS- eller JWE-kompakt serialiseringsformat.;ENU=The token must be in JWS or JWE Compact Serialization Format.';
+
+    [TryFunction]
+    [Internal]
+    PROCEDURE SendRequestToWebService@17();
+    VAR
+      WebRequestHelper@1000 : Codeunit 1299;
+      HttpWebRequest@1007 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest";
+      HttpStatusCode@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      ResponseHeaders@1001 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      ResponseInStream@1006 : InStream;
+    BEGIN
+      CheckGlobals;
+      BuildWebRequest(GlobalURL,HttpWebRequest);
+      ResponseInStreamTempBlob.INIT;
+      ResponseInStreamTempBlob.Blob.CREATEINSTREAM(ResponseInStream);
+      CreateSoapRequest(HttpWebRequest.GetRequestStream,GlobalRequestBodyInStream,GlobalUsername,GlobalPassword);
+      WebRequestHelper.GetWebResponse(HttpWebRequest,HttpWebResponse,ResponseInStream,
+        HttpStatusCode,ResponseHeaders,GlobalProgressDialogEnabled);
+      ExtractContentFromResponse(ResponseInStream,ResponseBodyTempBlob);
+    END;
+
+    LOCAL PROCEDURE BuildWebRequest@3(ServiceUrl@1000 : Text;VAR HttpWebRequest@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest");
+    VAR
+      DecompressionMethods@1003 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.DecompressionMethods";
+    BEGIN
+      HttpWebRequest := HttpWebRequest.Create(ServiceUrl);
+      HttpWebRequest.Method := 'POST';
+      HttpWebRequest.KeepAlive := TRUE;
+      HttpWebRequest.AllowAutoRedirect := TRUE;
+      HttpWebRequest.UseDefaultCredentials := TRUE;
+      IF GlobalContentType = '' THEN
+        GlobalContentType := ContentTypeTxt;
+      HttpWebRequest.ContentType := GlobalContentType;
+      IF GlobalTimeout <= 0 THEN
+        GlobalTimeout := 600000;
+      HttpWebRequest.Timeout := GlobalTimeout;
+      HttpWebRequest.AutomaticDecompression := DecompressionMethods.GZip;
+    END;
+
+    LOCAL PROCEDURE CreateSoapRequest@2(RequestOutStream@1000 : OutStream;BodyContentInStream@1004 : InStream;Username@1003 : Text;Password@1005 : Text);
+    VAR
+      XmlDoc@1007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      BodyXmlNode@1016 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+    BEGIN
+      CreateEnvelope(XmlDoc,BodyXmlNode,Username,Password);
+      AddBodyToEnvelope(BodyXmlNode,BodyContentInStream);
+      XmlDoc.Save(RequestOutStream);
+      TraceLogXmlDocToTempFile(XmlDoc,'FullRequest');
+    END;
+
+    LOCAL PROCEDURE CreateEnvelope@11(VAR XmlDoc@1011 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";VAR BodyXmlNode@1001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";Username@1009 : Text;Password@1010 : Text);
+    VAR
+      XMLDOMMgt@1000 : Codeunit 6224;
+      EnvelopeXmlNode@1007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      HeaderXmlNode@1006 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      SecurityXmlNode@1005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      UsernameTokenXmlNode@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      TempXmlNode@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      PasswordXmlNode@1002 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+    BEGIN
+      XmlDoc := XmlDoc.XmlDocument;
+      WITH XMLDOMMgt DO BEGIN
+        AddRootElementWithPrefix(XmlDoc,'Envelope','s',SoapNamespaceTxt,EnvelopeXmlNode);
+        AddAttribute(EnvelopeXmlNode,'xmlns:u',SecurityUtilityNamespaceTxt);
+
+        AddElementWithPrefix(EnvelopeXmlNode,'Header','','s',SoapNamespaceTxt,HeaderXmlNode);
+
+        IF (Username <> '') OR (Password <> '') THEN BEGIN
+          AddElementWithPrefix(HeaderXmlNode,'Security','','o',SecurityExtensionNamespaceTxt,SecurityXmlNode);
+          AddAttributeWithPrefix(SecurityXmlNode,'mustUnderstand','s',SoapNamespaceTxt,'1');
+
+          AddElementWithPrefix(SecurityXmlNode,'UsernameToken','','o',SecurityExtensionNamespaceTxt,UsernameTokenXmlNode);
+          AddAttributeWithPrefix(UsernameTokenXmlNode,'Id','u',SecurityUtilityNamespaceTxt,CreateUUID);
+
+          AddElementWithPrefix(UsernameTokenXmlNode,'Username',Username,'o',SecurityExtensionNamespaceTxt,TempXmlNode);
+          AddElementWithPrefix(UsernameTokenXmlNode,'Password',Password,'o',SecurityExtensionNamespaceTxt,PasswordXmlNode);
+          AddAttribute(PasswordXmlNode,'Type',UsernameTokenNamepsaceTxt);
+        END;
+
+        AddElementWithPrefix(EnvelopeXmlNode,'Body','','s',SoapNamespaceTxt,BodyXmlNode);
+        AddAttribute(BodyXmlNode,'xmlns:xsi',SchemaInstanceNamespaceTxt);
+        AddAttribute(BodyXmlNode,'xmlns:xsd',SchemaNamespaceTxt);
+      END;
+    END;
+
+    LOCAL PROCEDURE CreateUUID@9() : Text;
+    BEGIN
+      EXIT('uuid-' + DELCHR(LOWERCASE(FORMAT(CREATEGUID)),'=','{}'));
+    END;
+
+    LOCAL PROCEDURE AddBodyToEnvelope@12(VAR BodyXmlNode@1005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";BodyInStream@1000 : InStream);
+    VAR
+      XMLDOMManagement@1001 : Codeunit 6224;
+      BodyContentXmlDoc@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+    BEGIN
+      XMLDOMManagement.LoadXMLDocumentFromInStream(BodyInStream,BodyContentXmlDoc);
+      TraceLogXmlDocToTempFile(BodyContentXmlDoc,'RequestBodyContent');
+
+      BodyXmlNode.AppendChild(BodyXmlNode.OwnerDocument.ImportNode(BodyContentXmlDoc.DocumentElement,TRUE));
+    END;
+
+    LOCAL PROCEDURE ExtractContentFromResponse@4(ResponseInStream@1000 : InStream;VAR BodyTempBlob@1002 : Record 99008535);
+    VAR
+      XMLDOMMgt@1005 : Codeunit 6224;
+      ResponseBodyXMLDoc@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      ResponseBodyXmlNode@1006 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      XmlNode@1008 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      BodyOutStream@1007 : OutStream;
+      Found@1001 : Boolean;
+    BEGIN
+      TraceLogStreamToTempFile(ResponseInStream,'FullResponse',TempDebugLogTempBlob);
+      XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInStream,XmlNode);
+
+      Found := XMLDOMMgt.FindNodeWithNamespace(XmlNode,BodyPathTxt,'soap',SoapNamespaceTxt,ResponseBodyXmlNode);
+      IF NOT Found THEN
+        ERROR(ExpectedResponseNotReceivedErr);
+
+      ResponseBodyXMLDoc := ResponseBodyXMLDoc.XmlDocument;
+      ResponseBodyXMLDoc.AppendChild(ResponseBodyXMLDoc.ImportNode(ResponseBodyXmlNode.FirstChild,TRUE));
+
+      BodyTempBlob.Blob.CREATEOUTSTREAM(BodyOutStream);
+      ResponseBodyXMLDoc.Save(BodyOutStream);
+      TraceLogXmlDocToTempFile(ResponseBodyXMLDoc,'ResponseBodyContent');
+    END;
+
+    PROCEDURE GetResponseContent@22(VAR ResponseBodyInStream@1000 : InStream);
+    BEGIN
+      ResponseBodyTempBlob.Blob.CREATEINSTREAM(ResponseBodyInStream);
+    END;
+
+    [Internal]
+    PROCEDURE ProcessFaultResponse@15(SupportInfo@1001 : Text);
+    VAR
+      WebRequestHelper@1002 : Codeunit 1299;
+      XMLDOMMgt@1006 : Codeunit 6224;
+      WebException@1005 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.WebException";
+      XmlNode@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      ResponseInputStream@1000 : InStream;
+      ErrorText@1009 : Text;
+      ServiceURL@1010 : Text;
+    BEGIN
+      ErrorText := WebRequestHelper.GetWebResponseError(WebException,ServiceURL);
+
+      IF ErrorText <> '' THEN
+        ERROR(ErrorText);
+
+      ResponseInputStream := WebException.Response.GetResponseStream;
+      IF TraceLogEnabled THEN
+        Trace.LogStreamToTempFile(ResponseInputStream,'WebExceptionResponse',TempDebugLogTempBlob);
+
+      XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInputStream,XmlNode);
+
+      ErrorText := XMLDOMMgt.FindNodeTextWithNamespace(XmlNode,FaultStringXmlPathTxt,'soap',SoapNamespaceTxt);
+      IF ErrorText = '' THEN
+        ErrorText := WebException.Message;
+      ErrorText := InternalErr + ErrorText + ServiceURL;
+
+      IF SupportInfo <> '' THEN
+        ErrorText += '\\' + SupportInfo;
+
+      ERROR(ErrorText);
+    END;
+
+    [External]
+    PROCEDURE SetGlobals@10(RequestBodyInStream@1000 : InStream;URL@1001 : Text;Username@1002 : Text;Password@1003 : Text);
+    BEGIN
+      GlobalRequestBodyInStream := RequestBodyInStream;
+
+      GlobalSkipCheckHttps := FALSE;
+
+      GlobalURL := URL;
+      GlobalUsername := Username;
+      GlobalPassword := Password;
+
+      GlobalProgressDialogEnabled := TRUE;
+
+      TraceLogEnabled := FALSE;
+    END;
+
+    [External]
+    PROCEDURE SetTimeout@7(NewTimeout@1000 : Integer);
+    BEGIN
+      GlobalTimeout := NewTimeout;
+    END;
+
+````
+
+## OBJECT Codeunit 1297 Http Web Request Mgt.
+I guess this is my toolbox. 
+
+## OBJECT Codeunit 1298 OAuth Management
+
+## OBJECT Codeunit 1299 Web Request Helper
+Used in Codeunit 1297.
+
+
+## Some XML handling
+
+````
+      IF NOT HttpWebRequestMgt.TryLoadXMLResponse(GLBResponseInStream,XmlDoc) THEN BEGIN
+        LogActivityFailed(DocRecordID,GetDocErrorTxt,'');
+        EXIT(FALSE);
+      END;
+
+      Errors := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement,GetErrorXPath,
+          GetPrefix,GetApiNamespace);
+````
+
+## OBJECT Codeunit 1410 Doc. Exch. Service Mgt.
+
+## OBJECT Codeunit 1432 Net Promoter Score Mgt.
+
+````
+    [TryFunction]
+    [External]
+    PROCEDURE ExecuteWebRequest@3(Url@1006 : Text;VAR Response@1004 : Text);
+    VAR
+      HttpWebRequestMgt@1002 : Codeunit 1297;
+      HttpStatusCode@1001 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      Headers@1000 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      ErrorMessage@1007 : Text;
+      ErrorDetails@1009 : Text;
+    BEGIN
+      HttpWebRequestMgt.Initialize(Url);
+      HttpWebRequestMgt.DisableUI;
+      HttpWebRequestMgt.SetReturnType('application/json');
+      HttpWebRequestMgt.AddHeader('Accept-Encoding','utf-8');
+      HttpWebRequestMgt.SetMethod('GET');
+      HttpWebRequestMgt.SetTimeout(TimeoutInMilliseconds);
+      IF NOT HttpWebRequestMgt.SendRequestAndReadTextResponse(Response,ErrorMessage,ErrorDetails,HttpStatusCode,Headers) THEN BEGIN
+        IF ISNULL(HttpStatusCode) THEN BEGIN
+          SENDTRACETAG('0000836',NpsCategoryTxt,VERBOSITY::Warning,RequestFailedErr,DATACLASSIFICATION::SystemMetadata);
+          ERROR(ErrorMessage)
+        END;
+
+        IF (HttpStatusCode >= 400) AND (HttpStatusCode <= 499) THEN
+          SENDTRACETAG('0000837',NpsCategoryTxt,
+            VERBOSITY::Error,STRSUBSTNO(RequestFailedWithStatusCodeErr,HttpStatusCode),DATACLASSIFICATION::SystemMetadata)
+        ELSE
+          SENDTRACETAG('000022Q',NpsCategoryTxt,
+            VERBOSITY::Warning,STRSUBSTNO(RequestFailedWithStatusCodeErr,HttpStatusCode),DATACLASSIFICATION::SystemMetadata);
+        ERROR(ErrorMessage);
+      END;
+    END;
+````
+
+## OBJECT Codeunit 1545 Workflow Webhook Notification
+
+````
+    [TryFunction]
+    LOCAL PROCEDURE PostHttpRequest@16(DataID@1002 : GUID;WorkflowStepInstanceID@1001 : GUID;NotificationUrl@1000 : Text;RequestedByUserEmail@1009 : Text);
+    VAR
+      TypeHelper@1003 : Codeunit 10;
+      HttpWebRequest@1007 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest";
+      HttpWebResponse@1006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebResponse";
+      RequestStr@1005 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.IO.Stream";
+      StreamWriter@1004 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.IO.StreamWriter";
+      Encoding@1008 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Text.Encoding";
+    BEGIN
+      HttpWebRequest := HttpWebRequest.Create(NotificationUrl);
+      HttpWebRequest.Method := 'POST';
+      HttpWebRequest.ContentType('application/json');
+
+      RequestStr := HttpWebRequest.GetRequestStream;
+      StreamWriter := StreamWriter.StreamWriter(RequestStr,Encoding.ASCII);
+      StreamWriter.Write('{"Row Id":"' + TypeHelper.GetGuidAsString(DataID) +
+        '","Workflow Step Id":"' + TypeHelper.GetGuidAsString(WorkflowStepInstanceID) +
+        '","Requested By User Email":"' + RequestedByUserEmail + '"}');
+      StreamWriter.Flush;
+      StreamWriter.Close;
+      StreamWriter.Dispose;
+
+      HttpWebResponse := HttpWebRequest.GetResponse;
+      HttpWebResponse.Close; // close connection
+      HttpWebResponse.Dispose; // cleanup of IDisposable
+    END;
+````
+
+## OBJECT Codeunit 6154 API Webhook Notification Send
+
+````
+    [TryFunction]
+    LOCAL PROCEDURE SendRequest@14(NotificationUrlNumber@1007 : Integer;NotificationUrl@1015 : Text;NotificationPayload@1004 : Text;VAR ResponseBody@1003 : Text;VAR ErrorMessage@1001 : Text;VAR ErrorDetails@1005 : Text;VAR HttpStatusCode@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode");
+    VAR
+      HttpWebRequestMgt@1000 : Codeunit 1297;
+      ResponseHeaders@1006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+    BEGIN
+      IF NotificationUrl = '' THEN BEGIN
+        SENDTRACETAG('00002A1',APIWebhookCategoryLbl,VERBOSITY::Warning,
+          STRSUBSTNO(EmptyNotificationUrlErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
+        ERROR(STRSUBSTNO(EmptyNotificationUrlErr,NotificationUrlNumber));
+      END;
+
+      IF NotificationPayload = '' THEN BEGIN
+        SENDTRACETAG('00002A2',APIWebhookCategoryLbl,VERBOSITY::Warning,
+          STRSUBSTNO(EmptyPayloadPerNotificationUrlErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
+        ERROR(STRSUBSTNO(EmptyPayloadPerNotificationUrlErr,NotificationUrlNumber));
+      END;
+
+      HttpWebRequestMgt.Initialize(NotificationUrl);
+      HttpWebRequestMgt.DisableUI;
+      HttpWebRequestMgt.SetMethod('POST');
+      HttpWebRequestMgt.SetReturnType('application/json');
+      HttpWebRequestMgt.SetContentType('application/json');
+      HttpWebRequestMgt.SetTimeout(GetSendingNotificationTimeout);
+      HttpWebRequestMgt.AddBodyAsText(NotificationPayload);
+
+      IF NOT HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody,ErrorMessage,ErrorDetails,HttpStatusCode,ResponseHeaders) THEN BEGIN
+        IF ISNULL(HttpStatusCode) THEN
+          SENDTRACETAG('00002A3',APIWebhookCategoryLbl,VERBOSITY::Warning,
+            STRSUBSTNO(CannotGetResponseErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
+        ERROR(STRSUBSTNO(CannotGetResponseErr,NotificationUrlNumber));
+      END;
+    END;
+````
+
+## OBJECT Codeunit 9033 Invite External Accountant
+
+````
+    LOCAL PROCEDURE InvokeRequest@24(Url@1007 : Text;Verb@1008 : Text;Body@1010 : Text;AuthResourceUrl@1031 : Text;VAR ResponseContent@1009 : Text) : Boolean;
+    VAR
+      TempBlob@1021 : Record 99008535;
+      AzureADMgt@1006 : Codeunit 6300;
+      IdentityManagement@1020 : Codeunit 9801;
+      HttpWebRequestMgt@1022 : Codeunit 1297;
+      WebRequestHelper@1023 : Codeunit 1299;
+      HttpStatusCode@1024 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      ResponseHeaders@1025 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      WebException@1026 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.WebException";
+      InStr@1027 : InStream;
+      AccessToken@1005 : Text;
+      ServiceUrl@1029 : Text;
+      ChunkText@1028 : Text;
+      WasSuccessful@1030 : Boolean;
+    BEGIN
+      AccessToken := AzureADMgt.GetGuestAccessToken(AuthResourceUrl,IdentityManagement.GetAadTenantId);
+
+      IF AccessToken = '' THEN
+        ERROR(ErrorAcquiringTokenErr);
+
+      HttpWebRequestMgt.Initialize(Url);
+      HttpWebRequestMgt.DisableUI;
+      HttpWebRequestMgt.SetReturnType('application/json');
+      HttpWebRequestMgt.SetContentType('application/json');
+      HttpWebRequestMgt.SetMethod(Verb);
+      HttpWebRequestMgt.AddHeader('Authorization','Bearer ' + AccessToken);
+      IF Verb <> 'GET' THEN
+        HttpWebRequestMgt.AddBodyAsText(Body);
+
+      TempBlob.INIT;
+      TempBlob.Blob.CREATEINSTREAM(InStr);
+      IF HttpWebRequestMgt.GetResponse(InStr,HttpStatusCode,ResponseHeaders) THEN
+        WasSuccessful := TRUE
+      ELSE BEGIN
+        WebRequestHelper.GetWebResponseError(WebException,ServiceUrl);
+        WebException.Response.GetResponseStream.CopyTo(InStr);
+        WasSuccessful := FALSE;
+      END;
+
+      WHILE NOT InStr.EOS DO BEGIN
+        InStr.READTEXT(ChunkText);
+        ResponseContent += ChunkText;
+      END;
+
+      EXIT(WasSuccessful);
+    END;
+````
+
