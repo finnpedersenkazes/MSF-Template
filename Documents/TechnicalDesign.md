@@ -687,1010 +687,203 @@ Ellers vil forespørgslen ikke overholde skemaet, og webserveren vil give en fej
  
 # C/AL Code Patterns
 
-## OBJECT Table 407 Graph Mail Setup
+## OBJECT Codeunit 85100 AcKroInvent Management
 
-````
-    LOCAL PROCEDURE SendWebRequest@5(Payload@1000 : Text;Token@1009 : Text) : Boolean;
+```` 
+OBJECT Codeunit 85100 AcKroInvent Management
+{
+  OBJECT-PROPERTIES
+  {
+    Date=15-05-19;
+    Time=13:47:03;
+    Modified=Yes;
+    Version List=AcKroInvent0.99;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            TestConnection(TestXMLPayload2);
+          END;
+
+  }
+  CODE
+  {
+
+    LOCAL PROCEDURE TestXMLPayload2@100000003() : Text;
     VAR
-      TempBlob@1001 : TEMPORARY Record 99008535;
-      HttpWebRequestMgt@1002 : Codeunit 1297;
-      GraphMail@1006 : Codeunit 405;
-      HttpStatusCode@1005 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      ResponseHeaders@1004 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      ResponseInStream@1003 : InStream;
+      XMLDOMManagement@100000000 : Codeunit 6224;
+      XmlDoc@100000003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      BodyXmlNode@100000002 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      EnvelopeXmlNode@100000001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      ChildXmlNode@100000007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      SoapNamespaceTxt@100000005 : Text;
+      SchemaInstanceNamespaceTxt@100000004 : Text;
+      SchemaNamespaceTxt@100000006 : Text;
+      FormattedXMLText@100000008 : Text;
+      AcKroInventSetup@100000009 : Record 85100;
+      AcKroConfiguration@100000010 : Text;
+      AcKroCompany@100000011 : Text;
+      AcKroEncryptionKey@100000012 : Text;
+      AcKroShopId@100000013 : Text;
     BEGIN
-      TempBlob.INIT;
-      TempBlob.Blob.CREATEINSTREAM(ResponseInStream);
+      AcKroInventSetup.GetAccessCodes(AcKroConfiguration,AcKroCompany,AcKroEncryptionKey,AcKroShopId);
+      SoapNamespaceTxt := 'http://schemas.xmlsoap.org/soap/envelope/';
+      SchemaInstanceNamespaceTxt := 'http://www.w3.org/2001/XMLSchema-instance';
+      SchemaNamespaceTxt := 'http://www.w3.org/2001/XMLSchem';
 
-      HttpWebRequestMgt.Initialize(STRSUBSTNO('%1/v1.0/me/sendMail',GraphMail.GetGraphDomain));
+      XmlDoc := XmlDoc.XmlDocument;
+      XMLDOMManagement.AddRootElementWithPrefix(XmlDoc,'Envelope','soap',
+                            SoapNamespaceTxt,EnvelopeXmlNode);
+      XMLDOMManagement.AddAttribute(EnvelopeXmlNode,'xmlns:xsi',SchemaInstanceNamespaceTxt);
+      XMLDOMManagement.AddAttribute(EnvelopeXmlNode,'xmlns:xsd',SchemaNamespaceTxt);
+      XMLDOMManagement.AddDeclaration(XmlDoc,'1.0','utf-8','');
+
+      XMLDOMManagement.AddElementWithPrefix(EnvelopeXmlNode,'Body','','soap',
+                            SoapNamespaceTxt,BodyXmlNode);
+
+      XMLDOMManagement.AddGroupNode(BodyXmlNode,'getInventSumDetails');
+      XMLDOMManagement.AddAttribute(BodyXmlNode,'xmlns','http://Ackro.dk/Services/2010');
+
+      XMLDOMManagement.AddElement(BodyXmlNode,'_configuration',AcKroConfiguration,'',ChildXmlNode);
+      XMLDOMManagement.AddElement(BodyXmlNode,'_company',AcKroCompany,'',ChildXmlNode);
+      XMLDOMManagement.AddElement(BodyXmlNode,'_calcDate',FORMAT(CURRENTDATETIME,0,9),'',ChildXmlNode);
+
+      EXIT(XmlDoc.InnerXml);
+    END;
+
+    LOCAL PROCEDURE TestConnection@100000000(Payload@100000009 : Text);
+    VAR
+      HttpWebRequestMgt@100000000 : Codeunit 1297;
+      ResponseBody@100000002 : Text;
+      FormattedXMLText@100000008 : Text;
+      ErrorMessage@100000003 : Text;
+      ErrorDetails@100000004 : Text;
+      HttpStatusCode@100000005 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
+      ResponseHeaders@100000006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
+      XMLDOMManagement@100000007 : Codeunit 6224;
+      XMLRootNode@100000001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      ReturnedXMLNodeList@100000010 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeList";
+      InventSumNode@100000011 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      XmlDoc@100000012 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
+      XmlAttribute@100000014 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlAttribute";
+      ValueText@100000013 : Text;
+      ParrentNode@100000015 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      ChildNode@100000016 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      GrandChildNode@100000022 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      NodeList@100000017 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeList";
+      ChildNodeList@100000018 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeList";
+      root@100000021 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
+      i@100000019 : Integer;
+      j@100000020 : Integer;
+      ItemId@100000023 : Text;
+      ItemName@100000024 : Text;
+      Encoding@100000025 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Text.Encoding";
+      Convert@100000026 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Convert";
+      ResponseBodyConverted@100000027 : Text;
+      TypeHelper@100000028 : Codeunit 10;
+      TempBlob@100000031 : TEMPORARY Record 99008535;
+      ResponseInStream@100000030 : InStream;
+      TextLine@100000029 : Text;
+      AcKroInventItems@100000032 : Record 85101;
+      SupportComments@100000033 : Text;
+    BEGIN
+      HttpWebRequestMgt.Initialize('http://mail.ackro.dk/AcKroInvent/InventItemService.asmx');
+      HttpWebRequestMgt.DisableUI;
       HttpWebRequestMgt.SetMethod('POST');
-      HttpWebRequestMgt.SetContentType('application/json');
-      HttpWebRequestMgt.SetReturnType('application/json');
-      HttpWebRequestMgt.AddHeader('Authorization',STRSUBSTNO('Bearer %1',Token));
+      HttpWebRequestMgt.SetReturnType('text/xml');
+      HttpWebRequestMgt.SetContentType('text/xml');
+      HttpWebRequestMgt.AddHeader('Accept-Encoding','utf-8');
       HttpWebRequestMgt.AddBodyAsText(Payload);
 
-      IF NOT HttpWebRequestMgt.GetResponse(ResponseInStream,HttpStatusCode,ResponseHeaders) THEN BEGIN
-        HttpWebRequestMgt.ProcessFaultResponse('');
-        EXIT(FALSE);
-      END;
+      // XMLDOMManagement.TryFormatXML(Payload,FormattedXMLText);
+      // MESSAGE(FormattedXMLText);
 
-      EXIT(TRUE);
-    END;
-````
-
-## OBJECT Codeunit 1237 Get Json Structure
-
-````
-OBJECT Codeunit 1237 Get Json Structure
-{
-  OBJECT-PROPERTIES
-  {
-    Date=24-03-19;
-    Time=12:00:00;
-    Version List=NAVW114.00;
-  }
-  PROPERTIES
-  {
-    OnRun=BEGIN
-          END;
-
-  }
-  CODE
-  {
-    VAR
-      HttpWebRequestMgt@1004 : Codeunit 1297;
-      JsonConvert@1000 : DotNet "'Newtonsoft.Json'.Newtonsoft.Json.JsonConvert";
-      GLBHttpStatusCode@1003 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      GLBResponseHeaders@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      FileContent@1001 : Text;
-      InvalidResponseErr@1005 : TextConst 'DAN=Svaret var ugyldigt.;ENU=The response was not valid.';
-
-    [Internal]
-    PROCEDURE GenerateStructure@2(Path@1000 : Text;VAR XMLBuffer@1001 : Record 1235);
-    VAR
-      TempBlob@1010 : Record 99008535;
-      ResponseTempBlob@1003 : Record 99008535;
-      XMLBufferWriter@1002 : Codeunit 1235;
-      JsonInStream@1007 : InStream;
-      XMLOutStream@1009 : OutStream;
-      File@1006 : File;
-    BEGIN
-      IF File.OPEN(Path) THEN
-        File.CREATEINSTREAM(JsonInStream)
+      IF NOT HttpWebRequestMgt.SendRequestAndReadResponse(TempBlob,ErrorMessage,ErrorDetails,HttpStatusCode,ResponseHeaders) THEN
+        MESSAGE(ErrorMessage)
       ELSE BEGIN
-        CLEAR(ResponseTempBlob);
-        ResponseTempBlob.INIT;
-        ResponseTempBlob.Blob.CREATEINSTREAM(JsonInStream);
-        CLEAR(HttpWebRequestMgt);
-        HttpWebRequestMgt.Initialize(Path);
-        HttpWebRequestMgt.SetMethod('POST');
-        HttpWebRequestMgt.SetReturnType('application/json');
-        HttpWebRequestMgt.SetContentType('application/x-www-form-urlencoded');
-        HttpWebRequestMgt.AddHeader('Accept-Encoding','utf-8');
-        HttpWebRequestMgt.GetResponse(JsonInStream,GLBHttpStatusCode,GLBResponseHeaders);
-      END;
+        TempBlob.Blob.CREATEINSTREAM(ResponseInStream,TEXTENCODING::UTF8); // Finn
+        WHILE ResponseInStream.READTEXT(TextLine) > 0 DO
+          ResponseBody += TextLine;
 
-      TempBlob.INIT;
-      TempBlob.Blob.CREATEOUTSTREAM(XMLOutStream);
-      IF NOT JsonToXML(JsonInStream,XMLOutStream) THEN
-        IF NOT JsonToXMLCreateDefaultRoot(JsonInStream,XMLOutStream) THEN
-          ERROR(InvalidResponseErr);
+      //  Encoding.Convert(
+        XMLDOMManagement.LoadXMLDocumentFromText(ResponseBody,XmlDoc);
 
-      XMLBufferWriter.GenerateStructure(XMLBuffer,XMLOutStream);
-    END;
+      // Display the document element.
+      //  XMLDOMManagement.TryFormatXML(ResponseBody,FormattedXMLText);
+      //  MESSAGE(FormattedXMLText);
 
-    [TryFunction]
-    [External]
-    PROCEDURE JsonToXML@1(JsonInStream@1000 : InStream;VAR XMLOutStream@1001 : OutStream);
-    VAR
-      XmlDocument@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
-      NewContent@1002 : Text;
-    BEGIN
-      WHILE JsonInStream.READ(NewContent) > 0 DO
-        FileContent += NewContent;
-
-      XmlDocument := JsonConvert.DeserializeXmlNode(FileContent);
-      XmlDocument.Save(XMLOutStream);
-    END;
-
-    [TryFunction]
-    [External]
-    PROCEDURE JsonToXMLCreateDefaultRoot@3(JsonInStream@1005 : InStream;VAR XMLOutStream@1000 : OutStream);
-    VAR
-      XmlDocument@1001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
-      NewContent@1002 : Text;
-    BEGIN
-      WHILE JsonInStream.READ(NewContent) > 0 DO
-        FileContent += NewContent;
-
-      FileContent := '{"root":' + FileContent + '}';
-
-      XmlDocument := JsonConvert.DeserializeXmlNode(FileContent,'root');
-      XmlDocument.Save(XMLOutStream);
-    END;
-
-    BEGIN
-    END.
-  }
-}
-````
-
-
-## OBJECT Codeunit 1281 Update Currency Exchange Rates
-
-````
-    LOCAL PROCEDURE ExecuteWebServiceRequest@1(CurrExchRateUpdateSetup@1001 : Record 1650;VAR ResponseInStream@1003 : InStream);
-    VAR
-      HttpStatusCode@1000 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      ResponseHeaders@1004 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      URL@1002 : Text;
-    BEGIN
-      CurrExchRateUpdateSetup.GetWebServiceURL(URL);
-      HttpWebRequestMgt.Initialize(URL);
-      HttpWebRequestMgt.SetReturnType('application/xml,text/xml');
-
-      IF NOT GUIALLOWED THEN
-        HttpWebRequestMgt.DisableUI;
-
-      HttpWebRequestMgt.SetTraceLogEnabled(CurrExchRateUpdateSetup."Log Web Requests");
-
-      IF NOT HttpWebRequestMgt.GetResponse(ResponseInStream,HttpStatusCode,ResponseHeaders) THEN
-        ShowHttpError(CurrExchRateUpdateSetup,URL);
-    END;
-````
-
-## OBJECT Codeunit 1290 SOAP Web Service Request Mgt.
-
-````
-OBJECT Codeunit 1290 SOAP Web Service Request Mgt.
-{
-  OBJECT-PROPERTIES
-  {
-    Date=24-03-19;
-    Time=12:00:00;
-    Version List=NAVW114.00;
-  }
-  PROPERTIES
-  {
-    OnRun=BEGIN
+      // Display the contents of the child nodes.
+        NodeList := XmlDoc.GetElementsByTagName('InventSumDetails');
+        FOREACH ChildNode IN NodeList DO BEGIN
+      //    MESSAGE(ChildNode.InnerXml);
+          IF ChildNode.HasChildNodes THEN
+          BEGIN
+            AcKroInventItems.INIT;
+            SupportComments := '';
+            FOREACH GrandChildNode IN ChildNode DO BEGIN
+              CASE GrandChildNode.Name OF
+                'ItemId': AcKroInventItems."Item Id" := GrandChildNode.InnerText;
+                'ItemName': AcKroInventItems."Item Name" := GrandChildNode.InnerText;
+                'PhysicalDate':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Physical Date",GetDateFromXMLDateTime(GrandChildNode.InnerText)) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                'QtyAvailablePhysical':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Qty Available Physical",GrandChildNode.InnerText) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                'QtySalesOrder':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Qty Sales Order",GrandChildNode.InnerText) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                'QtyPurchOrder':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Qty Purch Order",GrandChildNode.InnerText) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                'QtyAvailable':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Qty Available",GrandChildNode.InnerText) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                'CostPrice':
+                  BEGIN
+                    IF NOT EVALUATE(AcKroInventItems."Cost Price",GrandChildNode.InnerText) THEN
+                      AddComment(SupportComments,STRSUBSTNO('Could not evaluate %1: %2',GrandChildNode.Name,GrandChildNode.InnerText));
+                  END;
+                ELSE
+                  AddComment(SupportComments,STRSUBSTNO('Unknown Tag: %1', GrandChildNode.Name));
+              END;
+            END;
+            IF SupportComments = '' THEN
+              SupportComments := 'OK';
+            AcKroInventItems."Support Comments" := SupportComments;
+            IF NOT AcKroInventItems.INSERT(TRUE) THEN
+              AcKroInventItems.MODIFY(TRUE);
           END;
-
-  }
-  CODE
-  {
-    VAR
-      BodyPathTxt@1001 : TextConst '@@@={Locked};DAN=/soap:Envelope/soap:Body;ENU=/soap:Envelope/soap:Body';
-      ContentTypeTxt@1000 : TextConst '@@@={Locked};DAN="multipart/form-data; charset=utf-8";ENU="multipart/form-data; charset=utf-8"';
-      FaultStringXmlPathTxt@1012 : TextConst '@@@={Locked};DAN=/soap:Envelope/soap:Body/soap:Fault/faultstring;ENU=/soap:Envelope/soap:Body/soap:Fault/faultstring';
-      NoRequestBodyErr@1015 : TextConst 'DAN=Anmodningsindholdet er ikke angivet.;ENU=The request body is not set.';
-      NoServiceAddressErr@1017 : TextConst 'DAN=Webtjeneste-URI''en er ikke angivet.;ENU=The web service URI is not set.';
-      ExpectedResponseNotReceivedErr@1009 : TextConst 'DAN=De forventede data blev ikke modtaget fra webtjenesten.;ENU=The expected data was not received from the web service.';
-      SchemaNamespaceTxt@1007 : TextConst '@@@={Locked};DAN=http://www.w3.org/2001/XMLSchema;ENU=http://www.w3.org/2001/XMLSchema';
-      SchemaInstanceNamespaceTxt@1006 : TextConst '@@@={Locked};DAN=http://www.w3.org/2001/XMLSchema-instance;ENU=http://www.w3.org/2001/XMLSchema-instance';
-      SecurityUtilityNamespaceTxt@1003 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd';
-      SecurityExtensionNamespaceTxt@1004 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd';
-      SoapNamespaceTxt@1002 : TextConst '@@@={Locked};DAN=http://schemas.xmlsoap.org/soap/envelope/;ENU=http://schemas.xmlsoap.org/soap/envelope/';
-      UsernameTokenNamepsaceTxt@1005 : TextConst '@@@={Locked};DAN=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText;ENU=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText';
-      TempDebugLogTempBlob@1010 : TEMPORARY Record 99008535;
-      ResponseBodyTempBlob@1020 : Record 99008535;
-      ResponseInStreamTempBlob@1019 : Record 99008535;
-      Trace@1016 : Codeunit 1292;
-      GlobalRequestBodyInStream@1022 : InStream;
-      HttpWebResponse@1021 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebResponse";
-      GlobalPassword@1013 : Text;
-      GlobalURL@1014 : Text;
-      GlobalUsername@1008 : Text;
-      TraceLogEnabled@1011 : Boolean;
-      GlobalTimeout@1024 : Integer;
-      InternalErr@1028 : TextConst 'DAN=Fjerntjenesten har returneret f�lgende fejlmeddelelse:\\;ENU=The remote service has returned the following error message:\\';
-      GlobalContentType@1026 : Text;
-      GlobalSkipCheckHttps@1018 : Boolean;
-      GlobalProgressDialogEnabled@1023 : Boolean;
-      InvalidTokenFormatErr@1025 : TextConst 'DAN=Tokenet skal v�re i JWS- eller JWE-kompakt serialiseringsformat.;ENU=The token must be in JWS or JWE Compact Serialization Format.';
-
-    [TryFunction]
-    [Internal]
-    PROCEDURE SendRequestToWebService@17();
-    VAR
-      WebRequestHelper@1000 : Codeunit 1299;
-      HttpWebRequest@1007 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest";
-      HttpStatusCode@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      ResponseHeaders@1001 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      ResponseInStream@1006 : InStream;
-    BEGIN
-      CheckGlobals;
-      BuildWebRequest(GlobalURL,HttpWebRequest);
-      ResponseInStreamTempBlob.INIT;
-      ResponseInStreamTempBlob.Blob.CREATEINSTREAM(ResponseInStream);
-      CreateSoapRequest(HttpWebRequest.GetRequestStream,GlobalRequestBodyInStream,GlobalUsername,GlobalPassword);
-      WebRequestHelper.GetWebResponse(HttpWebRequest,HttpWebResponse,ResponseInStream,
-        HttpStatusCode,ResponseHeaders,GlobalProgressDialogEnabled);
-      ExtractContentFromResponse(ResponseInStream,ResponseBodyTempBlob);
-    END;
-
-    LOCAL PROCEDURE BuildWebRequest@3(ServiceUrl@1000 : Text;VAR HttpWebRequest@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest");
-    VAR
-      DecompressionMethods@1003 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.DecompressionMethods";
-    BEGIN
-      HttpWebRequest := HttpWebRequest.Create(ServiceUrl);
-      HttpWebRequest.Method := 'POST';
-      HttpWebRequest.KeepAlive := TRUE;
-      HttpWebRequest.AllowAutoRedirect := TRUE;
-      HttpWebRequest.UseDefaultCredentials := TRUE;
-      IF GlobalContentType = '' THEN
-        GlobalContentType := ContentTypeTxt;
-      HttpWebRequest.ContentType := GlobalContentType;
-      IF GlobalTimeout <= 0 THEN
-        GlobalTimeout := 600000;
-      HttpWebRequest.Timeout := GlobalTimeout;
-      HttpWebRequest.AutomaticDecompression := DecompressionMethods.GZip;
-    END;
-
-    LOCAL PROCEDURE CreateSoapRequest@2(RequestOutStream@1000 : OutStream;BodyContentInStream@1004 : InStream;Username@1003 : Text;Password@1005 : Text);
-    VAR
-      XmlDoc@1007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
-      BodyXmlNode@1016 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-    BEGIN
-      CreateEnvelope(XmlDoc,BodyXmlNode,Username,Password);
-      AddBodyToEnvelope(BodyXmlNode,BodyContentInStream);
-      XmlDoc.Save(RequestOutStream);
-      TraceLogXmlDocToTempFile(XmlDoc,'FullRequest');
-    END;
-
-    LOCAL PROCEDURE CreateEnvelope@11(VAR XmlDoc@1011 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";VAR BodyXmlNode@1001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";Username@1009 : Text;Password@1010 : Text);
-    VAR
-      XMLDOMMgt@1000 : Codeunit 6224;
-      EnvelopeXmlNode@1007 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      HeaderXmlNode@1006 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      SecurityXmlNode@1005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      UsernameTokenXmlNode@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      TempXmlNode@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      PasswordXmlNode@1002 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-    BEGIN
-      XmlDoc := XmlDoc.XmlDocument;
-      WITH XMLDOMMgt DO BEGIN
-        AddRootElementWithPrefix(XmlDoc,'Envelope','s',SoapNamespaceTxt,EnvelopeXmlNode);
-        AddAttribute(EnvelopeXmlNode,'xmlns:u',SecurityUtilityNamespaceTxt);
-
-        AddElementWithPrefix(EnvelopeXmlNode,'Header','','s',SoapNamespaceTxt,HeaderXmlNode);
-
-        IF (Username <> '') OR (Password <> '') THEN BEGIN
-          AddElementWithPrefix(HeaderXmlNode,'Security','','o',SecurityExtensionNamespaceTxt,SecurityXmlNode);
-          AddAttributeWithPrefix(SecurityXmlNode,'mustUnderstand','s',SoapNamespaceTxt,'1');
-
-          AddElementWithPrefix(SecurityXmlNode,'UsernameToken','','o',SecurityExtensionNamespaceTxt,UsernameTokenXmlNode);
-          AddAttributeWithPrefix(UsernameTokenXmlNode,'Id','u',SecurityUtilityNamespaceTxt,CreateUUID);
-
-          AddElementWithPrefix(UsernameTokenXmlNode,'Username',Username,'o',SecurityExtensionNamespaceTxt,TempXmlNode);
-          AddElementWithPrefix(UsernameTokenXmlNode,'Password',Password,'o',SecurityExtensionNamespaceTxt,PasswordXmlNode);
-          AddAttribute(PasswordXmlNode,'Type',UsernameTokenNamepsaceTxt);
         END;
-
-        AddElementWithPrefix(EnvelopeXmlNode,'Body','','s',SoapNamespaceTxt,BodyXmlNode);
-        AddAttribute(BodyXmlNode,'xmlns:xsi',SchemaInstanceNamespaceTxt);
-        AddAttribute(BodyXmlNode,'xmlns:xsd',SchemaNamespaceTxt);
+        MESSAGE('Items updated');
       END;
     END;
 
-    LOCAL PROCEDURE CreateUUID@9() : Text;
+    LOCAL PROCEDURE AddComment@100000002(VAR Comment@100000000 : Text;NewComment@100000001 : Text);
     BEGIN
-      EXIT('uuid-' + DELCHR(LOWERCASE(FORMAT(CREATEGUID)),'=','{}'));
-    END;
-
-    LOCAL PROCEDURE AddBodyToEnvelope@12(VAR BodyXmlNode@1005 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";BodyInStream@1000 : InStream);
-    VAR
-      XMLDOMManagement@1001 : Codeunit 6224;
-      BodyContentXmlDoc@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
-    BEGIN
-      XMLDOMManagement.LoadXMLDocumentFromInStream(BodyInStream,BodyContentXmlDoc);
-      TraceLogXmlDocToTempFile(BodyContentXmlDoc,'RequestBodyContent');
-
-      BodyXmlNode.AppendChild(BodyXmlNode.OwnerDocument.ImportNode(BodyContentXmlDoc.DocumentElement,TRUE));
-    END;
-
-    LOCAL PROCEDURE ExtractContentFromResponse@4(ResponseInStream@1000 : InStream;VAR BodyTempBlob@1002 : Record 99008535);
-    VAR
-      XMLDOMMgt@1005 : Codeunit 6224;
-      ResponseBodyXMLDoc@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlDocument";
-      ResponseBodyXmlNode@1006 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      XmlNode@1008 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      BodyOutStream@1007 : OutStream;
-      Found@1001 : Boolean;
-    BEGIN
-      TraceLogStreamToTempFile(ResponseInStream,'FullResponse',TempDebugLogTempBlob);
-      XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInStream,XmlNode);
-
-      Found := XMLDOMMgt.FindNodeWithNamespace(XmlNode,BodyPathTxt,'soap',SoapNamespaceTxt,ResponseBodyXmlNode);
-      IF NOT Found THEN
-        ERROR(ExpectedResponseNotReceivedErr);
-
-      ResponseBodyXMLDoc := ResponseBodyXMLDoc.XmlDocument;
-      ResponseBodyXMLDoc.AppendChild(ResponseBodyXMLDoc.ImportNode(ResponseBodyXmlNode.FirstChild,TRUE));
-
-      BodyTempBlob.Blob.CREATEOUTSTREAM(BodyOutStream);
-      ResponseBodyXMLDoc.Save(BodyOutStream);
-      TraceLogXmlDocToTempFile(ResponseBodyXMLDoc,'ResponseBodyContent');
-    END;
-
-    PROCEDURE GetResponseContent@22(VAR ResponseBodyInStream@1000 : InStream);
-    BEGIN
-      ResponseBodyTempBlob.Blob.CREATEINSTREAM(ResponseBodyInStream);
-    END;
-
-    [Internal]
-    PROCEDURE ProcessFaultResponse@15(SupportInfo@1001 : Text);
-    VAR
-      WebRequestHelper@1002 : Codeunit 1299;
-      XMLDOMMgt@1006 : Codeunit 6224;
-      WebException@1005 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.WebException";
-      XmlNode@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNode";
-      ResponseInputStream@1000 : InStream;
-      ErrorText@1009 : Text;
-      ServiceURL@1010 : Text;
-    BEGIN
-      ErrorText := WebRequestHelper.GetWebResponseError(WebException,ServiceURL);
-
-      IF ErrorText <> '' THEN
-        ERROR(ErrorText);
-
-      ResponseInputStream := WebException.Response.GetResponseStream;
-      IF TraceLogEnabled THEN
-        Trace.LogStreamToTempFile(ResponseInputStream,'WebExceptionResponse',TempDebugLogTempBlob);
-
-      XMLDOMMgt.LoadXMLNodeFromInStream(ResponseInputStream,XmlNode);
-
-      ErrorText := XMLDOMMgt.FindNodeTextWithNamespace(XmlNode,FaultStringXmlPathTxt,'soap',SoapNamespaceTxt);
-      IF ErrorText = '' THEN
-        ErrorText := WebException.Message;
-      ErrorText := InternalErr + ErrorText + ServiceURL;
-
-      IF SupportInfo <> '' THEN
-        ErrorText += '\\' + SupportInfo;
-
-      ERROR(ErrorText);
-    END;
-
-    [External]
-    PROCEDURE SetGlobals@10(RequestBodyInStream@1000 : InStream;URL@1001 : Text;Username@1002 : Text;Password@1003 : Text);
-    BEGIN
-      GlobalRequestBodyInStream := RequestBodyInStream;
-
-      GlobalSkipCheckHttps := FALSE;
-
-      GlobalURL := URL;
-      GlobalUsername := Username;
-      GlobalPassword := Password;
-
-      GlobalProgressDialogEnabled := TRUE;
-
-      TraceLogEnabled := FALSE;
-    END;
-
-    [External]
-    PROCEDURE SetTimeout@7(NewTimeout@1000 : Integer);
-    BEGIN
-      GlobalTimeout := NewTimeout;
-    END;
-
-````
-
-## OBJECT Codeunit 1297 Http Web Request Mgt.
-I guess this is my toolbox. 
-
-## OBJECT Codeunit 1298 OAuth Management
-
-## OBJECT Codeunit 1299 Web Request Helper
-Used in Codeunit 1297.
-
-
-## Some XML handling
-
-````
-      IF NOT HttpWebRequestMgt.TryLoadXMLResponse(GLBResponseInStream,XmlDoc) THEN BEGIN
-        LogActivityFailed(DocRecordID,GetDocErrorTxt,'');
-        EXIT(FALSE);
-      END;
-
-      Errors := XMLDOMMgt.FindNodeTextWithNamespace(XmlDoc.DocumentElement,GetErrorXPath,
-          GetPrefix,GetApiNamespace);
-````
-
-## OBJECT Codeunit 1410 Doc. Exch. Service Mgt.
-
-## OBJECT Codeunit 1432 Net Promoter Score Mgt.
-
-````
-    [TryFunction]
-    [External]
-    PROCEDURE ExecuteWebRequest@3(Url@1006 : Text;VAR Response@1004 : Text);
-    VAR
-      HttpWebRequestMgt@1002 : Codeunit 1297;
-      HttpStatusCode@1001 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      Headers@1000 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      ErrorMessage@1007 : Text;
-      ErrorDetails@1009 : Text;
-    BEGIN
-      HttpWebRequestMgt.Initialize(Url);
-      HttpWebRequestMgt.DisableUI;
-      HttpWebRequestMgt.SetReturnType('application/json');
-      HttpWebRequestMgt.AddHeader('Accept-Encoding','utf-8');
-      HttpWebRequestMgt.SetMethod('GET');
-      HttpWebRequestMgt.SetTimeout(TimeoutInMilliseconds);
-      IF NOT HttpWebRequestMgt.SendRequestAndReadTextResponse(Response,ErrorMessage,ErrorDetails,HttpStatusCode,Headers) THEN BEGIN
-        IF ISNULL(HttpStatusCode) THEN BEGIN
-          SENDTRACETAG('0000836',NpsCategoryTxt,VERBOSITY::Warning,RequestFailedErr,DATACLASSIFICATION::SystemMetadata);
-          ERROR(ErrorMessage)
-        END;
-
-        IF (HttpStatusCode >= 400) AND (HttpStatusCode <= 499) THEN
-          SENDTRACETAG('0000837',NpsCategoryTxt,
-            VERBOSITY::Error,STRSUBSTNO(RequestFailedWithStatusCodeErr,HttpStatusCode),DATACLASSIFICATION::SystemMetadata)
-        ELSE
-          SENDTRACETAG('000022Q',NpsCategoryTxt,
-            VERBOSITY::Warning,STRSUBSTNO(RequestFailedWithStatusCodeErr,HttpStatusCode),DATACLASSIFICATION::SystemMetadata);
-        ERROR(ErrorMessage);
-      END;
-    END;
-````
-
-## OBJECT Codeunit 1545 Workflow Webhook Notification
-
-````
-    [TryFunction]
-    LOCAL PROCEDURE PostHttpRequest@16(DataID@1002 : GUID;WorkflowStepInstanceID@1001 : GUID;NotificationUrl@1000 : Text;RequestedByUserEmail@1009 : Text);
-    VAR
-      TypeHelper@1003 : Codeunit 10;
-      HttpWebRequest@1007 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebRequest";
-      HttpWebResponse@1006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpWebResponse";
-      RequestStr@1005 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.IO.Stream";
-      StreamWriter@1004 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.IO.StreamWriter";
-      Encoding@1008 : DotNet "'mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Text.Encoding";
-    BEGIN
-      HttpWebRequest := HttpWebRequest.Create(NotificationUrl);
-      HttpWebRequest.Method := 'POST';
-      HttpWebRequest.ContentType('application/json');
-
-      RequestStr := HttpWebRequest.GetRequestStream;
-      StreamWriter := StreamWriter.StreamWriter(RequestStr,Encoding.ASCII);
-      StreamWriter.Write('{"Row Id":"' + TypeHelper.GetGuidAsString(DataID) +
-        '","Workflow Step Id":"' + TypeHelper.GetGuidAsString(WorkflowStepInstanceID) +
-        '","Requested By User Email":"' + RequestedByUserEmail + '"}');
-      StreamWriter.Flush;
-      StreamWriter.Close;
-      StreamWriter.Dispose;
-
-      HttpWebResponse := HttpWebRequest.GetResponse;
-      HttpWebResponse.Close; // close connection
-      HttpWebResponse.Dispose; // cleanup of IDisposable
-    END;
-````
-
-## OBJECT Codeunit 6154 API Webhook Notification Send
-
-````
-    [TryFunction]
-    LOCAL PROCEDURE SendRequest@14(NotificationUrlNumber@1007 : Integer;NotificationUrl@1015 : Text;NotificationPayload@1004 : Text;VAR ResponseBody@1003 : Text;VAR ErrorMessage@1001 : Text;VAR ErrorDetails@1005 : Text;VAR HttpStatusCode@1002 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode");
-    VAR
-      HttpWebRequestMgt@1000 : Codeunit 1297;
-      ResponseHeaders@1006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-    BEGIN
-      IF NotificationUrl = '' THEN BEGIN
-        SENDTRACETAG('00002A1',APIWebhookCategoryLbl,VERBOSITY::Warning,
-          STRSUBSTNO(EmptyNotificationUrlErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
-        ERROR(STRSUBSTNO(EmptyNotificationUrlErr,NotificationUrlNumber));
-      END;
-
-      IF NotificationPayload = '' THEN BEGIN
-        SENDTRACETAG('00002A2',APIWebhookCategoryLbl,VERBOSITY::Warning,
-          STRSUBSTNO(EmptyPayloadPerNotificationUrlErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
-        ERROR(STRSUBSTNO(EmptyPayloadPerNotificationUrlErr,NotificationUrlNumber));
-      END;
-
-      HttpWebRequestMgt.Initialize(NotificationUrl);
-      HttpWebRequestMgt.DisableUI;
-      HttpWebRequestMgt.SetMethod('POST');
-      HttpWebRequestMgt.SetReturnType('application/json');
-      HttpWebRequestMgt.SetContentType('application/json');
-      HttpWebRequestMgt.SetTimeout(GetSendingNotificationTimeout);
-      HttpWebRequestMgt.AddBodyAsText(NotificationPayload);
-
-      IF NOT HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody,ErrorMessage,ErrorDetails,HttpStatusCode,ResponseHeaders) THEN BEGIN
-        IF ISNULL(HttpStatusCode) THEN
-          SENDTRACETAG('00002A3',APIWebhookCategoryLbl,VERBOSITY::Warning,
-            STRSUBSTNO(CannotGetResponseErr,NotificationUrlNumber),DATACLASSIFICATION::SystemMetadata);
-        ERROR(STRSUBSTNO(CannotGetResponseErr,NotificationUrlNumber));
-      END;
-    END;
-````
-
-## OBJECT Codeunit 9033 Invite External Accountant
-
-````
-    LOCAL PROCEDURE InvokeRequest@24(Url@1007 : Text;Verb@1008 : Text;Body@1010 : Text;AuthResourceUrl@1031 : Text;VAR ResponseContent@1009 : Text) : Boolean;
-    VAR
-      TempBlob@1021 : Record 99008535;
-      AzureADMgt@1006 : Codeunit 6300;
-      IdentityManagement@1020 : Codeunit 9801;
-      HttpWebRequestMgt@1022 : Codeunit 1297;
-      WebRequestHelper@1023 : Codeunit 1299;
-      HttpStatusCode@1024 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.HttpStatusCode";
-      ResponseHeaders@1025 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Collections.Specialized.NameValueCollection";
-      WebException@1026 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.WebException";
-      InStr@1027 : InStream;
-      AccessToken@1005 : Text;
-      ServiceUrl@1029 : Text;
-      ChunkText@1028 : Text;
-      WasSuccessful@1030 : Boolean;
-    BEGIN
-      AccessToken := AzureADMgt.GetGuestAccessToken(AuthResourceUrl,IdentityManagement.GetAadTenantId);
-
-      IF AccessToken = '' THEN
-        ERROR(ErrorAcquiringTokenErr);
-
-      HttpWebRequestMgt.Initialize(Url);
-      HttpWebRequestMgt.DisableUI;
-      HttpWebRequestMgt.SetReturnType('application/json');
-      HttpWebRequestMgt.SetContentType('application/json');
-      HttpWebRequestMgt.SetMethod(Verb);
-      HttpWebRequestMgt.AddHeader('Authorization','Bearer ' + AccessToken);
-      IF Verb <> 'GET' THEN
-        HttpWebRequestMgt.AddBodyAsText(Body);
-
-      TempBlob.INIT;
-      TempBlob.Blob.CREATEINSTREAM(InStr);
-      IF HttpWebRequestMgt.GetResponse(InStr,HttpStatusCode,ResponseHeaders) THEN
-        WasSuccessful := TRUE
-      ELSE BEGIN
-        WebRequestHelper.GetWebResponseError(WebException,ServiceUrl);
-        WebException.Response.GetResponseStream.CopyTo(InStr);
-        WasSuccessful := FALSE;
-      END;
-
-      WHILE NOT InStr.EOS DO BEGIN
-        InStr.READTEXT(ChunkText);
-        ResponseContent += ChunkText;
-      END;
-
-      EXIT(WasSuccessful);
-    END;
-````
-
-## OBJECT Table 1235 XML Buffer
-
-````
-OBJECT Table 1235 XML Buffer
-{
-  OBJECT-PROPERTIES
-  {
-    Date=24-03-19;
-    Time=12:00:00;
-    Version List=NAVW114.00;
-  }
-  PROPERTIES
-  {
-    ReplicateData=No;
-    CaptionML=[DAN=XML-buffer;
-               ENU=XML Buffer];
-  }
-  FIELDS
-  {
-    { 1   ;   ;Entry No.           ;Integer       ;AutoIncrement=Yes;
-                                                   DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=L�benr.;
-                                                              ENU=Entry No.] }
-    { 2   ;   ;Type                ;Option        ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Type;
-                                                              ENU=Type];
-                                                   OptionCaptionML=[DAN=" ,Element,Attribut,Instruktion til behandling";
-                                                                    ENU=" ,Element,Attribute,Processing Instruction"];
-                                                   OptionString=[ ,Element,Attribute,Processing Instruction] }
-    { 3   ;   ;Name                ;Text250       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Navn;
-                                                              ENU=Name] }
-    { 4   ;   ;Path                ;Text250       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Sti;
-                                                              ENU=Path] }
-    { 5   ;   ;Value               ;Text250       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=V�rdi;
-                                                              ENU=Value] }
-    { 6   ;   ;Depth               ;Integer       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Dybde;
-                                                              ENU=Depth] }
-    { 7   ;   ;Parent Entry No.    ;Integer       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Overordnet posteringsnr.;
-                                                              ENU=Parent Entry No.] }
-    { 8   ;   ;Is Parent           ;Boolean       ;ObsoleteState=Pending;
-                                                   ObsoleteReason=Is not used anomore;
-                                                   DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Er overordnet;
-                                                              ENU=Is Parent] }
-    { 9   ;   ;Data Type           ;Option        ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Datatype;
-                                                              ENU=Data Type];
-                                                   OptionCaptionML=[DAN=Tekst,Dato,Decimal,Dato/klokkesl�t;
-                                                                    ENU=Text,Date,Decimal,DateTime];
-                                                   OptionString=Text,Date,Decimal,DateTime }
-    { 10  ;   ;Code                ;Code20        ;ObsoleteState=Pending;
-                                                   ObsoleteReason=Is not used anymore;
-                                                   DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Kode;
-                                                              ENU=Code] }
-    { 11  ;   ;Node Name           ;Text250       ;ObsoleteState=Pending;
-                                                   ObsoleteReason=Is not used anymore;
-                                                   DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Nodenavn;
-                                                              ENU=Node Name] }
-    { 12  ;   ;Has Attributes      ;Boolean       ;ObsoleteState=Pending;
-                                                   ObsoleteReason=Is not used anymore;
-                                                   DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Har attributter;
-                                                              ENU=Has Attributes];
-                                                   Editable=No }
-    { 13  ;   ;Node Number         ;Integer       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Nodenummer;
-                                                              ENU=Node Number] }
-    { 14  ;   ;Namespace           ;Text250       ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Navneomr�de;
-                                                              ENU=Namespace] }
-    { 15  ;   ;Import ID           ;GUID          ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=Indl�s id;
-                                                              ENU=Import ID] }
-    { 16  ;   ;Value BLOB          ;BLOB          ;DataClassification=SystemMetadata;
-                                                   CaptionML=[DAN=BLOB-v�rdi;
-                                                              ENU=Value BLOB] }
-  }
-  KEYS
-  {
-    {    ;Entry No.                               ;Clustered=Yes }
-    {    ;Parent Entry No.,Type,Node Number        }
-  }
-  FIELDGROUPS
-  {
-  }
-  CODE
-  {
-
-    [Internal]
-    PROCEDURE Load@1(StreamOrServerFile@1002 : Variant);
-    VAR
-      XMLBufferWriter@1000 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InitializeXMLBufferFrom(Rec,StreamOrServerFile);
-    END;
-
-    [External]
-    PROCEDURE LoadFromStream@21(XmlStream@1002 : InStream);
-    VAR
-      XMLBufferWriter@1000 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InitializeXMLBufferFromStream(Rec,XmlStream);
-    END;
-
-    [External]
-    PROCEDURE ReadFromBlob@20(TempBlob@1000 : Record 99008535);
-    BEGIN
-      LoadFromText(TempBlob.ReadAsTextWithCRLFLineSeparator);
-    END;
-
-    [External]
-    PROCEDURE LoadFromText@10(XmlText@1001 : Text);
-    VAR
-      XMLBufferWriter@1000 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InitializeXMLBufferFromText(Rec,XmlText);
-    END;
-
-    [Internal]
-    PROCEDURE Upload@12() : Boolean;
-    VAR
-      FileManagement@1000 : Codeunit 419;
-      ServerTempFileName@1001 : Text;
-    BEGIN
-      ServerTempFileName := FileManagement.UploadFile('','*.xml');
-      IF ServerTempFileName = '' THEN
-        EXIT(FALSE);
-      Load(ServerTempFileName);
-      FileManagement.DeleteServerFile(ServerTempFileName);
-      EXIT(TRUE);
-    END;
-
-    [Internal]
-    PROCEDURE Save@38(ServerFilePath@1000 : Text) : Boolean;
-    VAR
-      XMLBufferReader@1002 : Codeunit 1239;
-    BEGIN
-      EXIT(XMLBufferReader.SaveToFile(ServerFilePath,Rec));
-    END;
-
-    [Internal]
-    PROCEDURE Download@13() Success : Boolean;
-    VAR
-      FileManagement@1000 : Codeunit 419;
-      ServerTempFileName@1001 : Text;
-    BEGIN
-      ServerTempFileName := FileManagement.ServerTempFileName('xml');
-      Save(ServerTempFileName);
-      Success := FileManagement.DownloadHandler(ServerTempFileName,'','','','temp.xml');
-      FileManagement.DeleteServerFile(ServerTempFileName);
-    END;
-
-    [External]
-    PROCEDURE CreateRootElement@23(ElementName@1000 : Text[250]);
-    VAR
-      XMLBufferWriter@1001 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InsertElement(Rec,Rec,1,1,ElementName,'');
-    END;
-
-    [External]
-    PROCEDURE AddNamespace@14(NamespacePrefix@1000 : Text[244];NamespacePath@1001 : Text[250]);
-    BEGIN
-      IF NamespacePrefix = '' THEN
-        AddAttribute('xmlns',NamespacePath)
+      IF Comment = '' THEN
+        Comment := NewComment
       ELSE
-        AddAttribute('xmlns:' + NamespacePrefix,NamespacePath);
+        Comment := Comment + ';' + NewComment;
     END;
 
-    [External]
-    PROCEDURE AddProcessingInstruction@33(InstructionName@1000 : Text[250];InstructionValue@1001 : Text);
-    VAR
-      XMLBufferWriter@1002 : Codeunit 1235;
+    LOCAL PROCEDURE GetDateFromXMLDateTime@100000001(DateTimeString@100000000 : Text) : Text;
     BEGIN
-      XMLBufferWriter.InsertProcessingInstruction(Rec,Rec,CountProcessingInstructions + 1,Depth + 1,InstructionName,InstructionValue);
-      GetParent;
-    END;
+      EXIT(COPYSTR(DateTimeString,9,2) +
+           COPYSTR(DateTimeString,6,2) +
+           COPYSTR(DateTimeString,3,2));
 
-    [External]
-    PROCEDURE AddAttribute@7(AttributeName@1001 : Text[250];AttributeValue@1000 : Text[250]);
-    VAR
-      XMLBufferWriter@1002 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InsertAttribute(Rec,Rec,CountAttributes + 1,Depth + 1,AttributeName,AttributeValue);
-      GetParent;
-    END;
-
-    [External]
-    PROCEDURE AddGroupElement@3(ElementNameWithNamespace@1001 : Text[250]) : Integer;
-    VAR
-      XMLBufferWriter@1000 : Codeunit 1235;
-    BEGIN
-      XMLBufferWriter.InsertElement(Rec,Rec,CountChildElements + 1,Depth + 1,ElementNameWithNamespace,'');
-      EXIT("Entry No.");
-    END;
-
-    [External]
-    PROCEDURE AddGroupElementAt@18(ElementNameWithNamespace@1003 : Text[250];EntryNo@1000 : Integer) : Integer;
-    VAR
-      XMLBufferWriter@1002 : Codeunit 1235;
-      CurrentView@1004 : Text;
-      ElementNo@1001 : Integer;
-    BEGIN
-      CurrentView := GETVIEW;
-      GET(EntryNo);
-      ElementNo := "Node Number";
-      RESET;
-      SETRANGE("Parent Entry No.","Parent Entry No.");
-      SETFILTER("Node Number",'>=%1',ElementNo);
-      IF FINDSET(TRUE) THEN
-        REPEAT
-          "Node Number" += 1;
-          MODIFY;
-        UNTIL NEXT = 0;
-      GET("Parent Entry No.");
-      XMLBufferWriter.InsertElement(Rec,Rec,ElementNo,Depth + 1,ElementNameWithNamespace,'');
-      SETVIEW(CurrentView);
-      EXIT("Entry No.");
-    END;
-
-    [External]
-    PROCEDURE AddElement@5(ElementNameWithNamespace@1007 : Text[250];ElementValue@1006 : Text) ElementEntryNo : Integer;
-    BEGIN
-      ElementEntryNo := AddGroupElement(ElementNameWithNamespace);
-      SetValueWithoutModifying(ElementValue);
-      MODIFY(TRUE);
-      GetParent;
-    END;
-
-    [External]
-    PROCEDURE AddLastElement@6(ElementNameWithNamespace@1001 : Text[250];ElementValue@1000 : Text) ElementEntryNo : Integer;
-    BEGIN
-      ElementEntryNo := AddElement(ElementNameWithNamespace,ElementValue);
-      GetParent;
-    END;
-
-    [External]
-    PROCEDURE AddNonEmptyElement@15(ElementNameWithNamespace@1007 : Text[250];ElementValue@1006 : Text) ElementEntryNo : Integer;
-    BEGIN
-      IF ElementValue = '' THEN
-        EXIT;
-      ElementEntryNo := AddElement(ElementNameWithNamespace,ElementValue);
-    END;
-
-    [External]
-    PROCEDURE AddNonEmptyLastElement@17(ElementNameWithNamespace@1007 : Text[250];ElementValue@1006 : Text) ElementEntryNo : Integer;
-    BEGIN
-      ElementEntryNo := AddNonEmptyElement(ElementNameWithNamespace,ElementValue);
-      GetParent;
-    END;
-
-    [External]
-    PROCEDURE CopyImportFrom@9(VAR TempXMLBuffer@1001 : TEMPORARY Record 1235);
-    VAR
-      XMLBuffer@1000 : Record 1235;
-    BEGIN
-      IF TempXMLBuffer.ISTEMPORARY THEN
-        COPY(TempXMLBuffer,TRUE)
-      ELSE BEGIN
-        XMLBuffer.SETRANGE("Import ID",TempXMLBuffer."Import ID");
-        IF XMLBuffer.FINDSET THEN
-          REPEAT
-            Rec := XMLBuffer;
-            INSERT;
-          UNTIL XMLBuffer.NEXT = 0;
-        SETVIEW(TempXMLBuffer.GETVIEW);
-      END;
-    END;
-
-    [External]
-    PROCEDURE CountChildElements@37() NumElements : Integer;
-    VAR
-      CurrentView@1002 : Text;
-    BEGIN
-      CurrentView := GETVIEW;
-      RESET;
-      SETRANGE("Parent Entry No.","Entry No.");
-      SETRANGE(Type,Type::Element);
-      NumElements := COUNT;
-      SETVIEW(CurrentView);
-    END;
-
-    [External]
-    PROCEDURE CountAttributes@43() NumAttributes : Integer;
-    VAR
-      CurrentView@1002 : Text;
-    BEGIN
-      CurrentView := GETVIEW;
-      RESET;
-      SETRANGE("Parent Entry No.","Entry No.");
-      SETRANGE(Type,Type::Attribute);
-      NumAttributes := COUNT;
-      SETVIEW(CurrentView);
-    END;
-
-    [External]
-    PROCEDURE CountProcessingInstructions@34() NumElements : Integer;
-    VAR
-      CurrentView@1000 : Text;
-    BEGIN
-      CurrentView := GETVIEW;
-      RESET;
-      SETRANGE("Parent Entry No.","Entry No.");
-      SETRANGE(Type,Type::"Processing Instruction");
-      NumElements := COUNT;
-      SETVIEW(CurrentView);
-    END;
-
-    [External]
-    PROCEDURE FindProcessingInstructions@1901(VAR TempXMLBuffer@1000 : TEMPORARY Record 1235) : Boolean;
-    BEGIN
-      EXIT(FindChildNodes(TempXMLBuffer,Type::"Processing Instruction",''));
-    END;
-
-    [External]
-    PROCEDURE FindAttributes@19(VAR TempResultAttributeXMLBuffer@1000 : TEMPORARY Record 1235) : Boolean;
-    BEGIN
-      EXIT(FindChildNodes(TempResultAttributeXMLBuffer,Type::Attribute,''));
-    END;
-
-    [External]
-    PROCEDURE FindChildElements@16(VAR TempResultElementXMLBuffer@1000 : TEMPORARY Record 1235) : Boolean;
-    BEGIN
-      EXIT(FindChildNodes(TempResultElementXMLBuffer,Type::Element,''));
-    END;
-
-    [External]
-    PROCEDURE FindNodesByXPath@2(VAR TempResultElementXMLBuffer@1000 : TEMPORARY Record 1235;XPath@1002 : Text) : Boolean;
-    BEGIN
-      TempResultElementXMLBuffer.CopyImportFrom(Rec);
-
-      TempResultElementXMLBuffer.SETRANGE("Import ID","Import ID");
-      TempResultElementXMLBuffer.SETRANGE("Parent Entry No.");
-      TempResultElementXMLBuffer.SETFILTER(Path,'*' + XPath);
-      EXIT(TempResultElementXMLBuffer.FINDSET);
-    END;
-
-    [External]
-    PROCEDURE GetAttributeValue@50(AttributeName@1000 : Text) : Text[250];
-    VAR
-      TempXMLBuffer@1002 : TEMPORARY Record 1235;
-    BEGIN
-      IF FindChildNodes(TempXMLBuffer,Type::Attribute,AttributeName) THEN
-        EXIT(TempXMLBuffer.Value);
-    END;
-
-    [External]
-    PROCEDURE GetElementName@68() : Text;
-    BEGIN
-      IF Namespace = '' THEN
-        EXIT(Name);
-      EXIT(Namespace + ':' + Name);
-    END;
-
-    [External]
-    PROCEDURE GetParent@8() : Boolean;
-    BEGIN
-      EXIT(GET("Parent Entry No."))
-    END;
-
-    [External]
-    PROCEDURE HasChildNodes@4() ChildNodesExists : Boolean;
-    VAR
-      CurrentView@1002 : Text;
-    BEGIN
-      CurrentView := GETVIEW;
-      RESET;
-      SETRANGE("Parent Entry No.","Entry No.");
-      ChildNodesExists := NOT ISEMPTY;
-      SETVIEW(CurrentView);
-    END;
-
-    LOCAL PROCEDURE FindChildNodes@11(VAR TempResultXMLBuffer@1003 : TEMPORARY Record 1235;NodeType@1000 : Option;NodeName@1001 : Text) : Boolean;
-    BEGIN
-      TempResultXMLBuffer.CopyImportFrom(Rec);
-
-      TempResultXMLBuffer.SETRANGE("Parent Entry No.","Entry No.");
-      TempResultXMLBuffer.SETRANGE(Path);
-      TempResultXMLBuffer.SETRANGE(Type,NodeType);
-      IF NodeName <> '' THEN
-        TempResultXMLBuffer.SETRANGE(Name,NodeName);
-      EXIT(TempResultXMLBuffer.FINDSET);
-    END;
-
-    [External]
-    PROCEDURE GetValue@22() : Text;
-    VAR
-      TempBlob@1001 : Record 99008535;
-      CR@1002 : Text[1];
-    BEGIN
-      CALCFIELDS("Value BLOB");
-      IF NOT "Value BLOB".HASVALUE THEN
-        EXIT(Value);
-      CR[1] := 10;
-      TempBlob.Blob := "Value BLOB";
-      EXIT(TempBlob.ReadAsText(CR,TEXTENCODING::Windows));
-    END;
-
-    LOCAL PROCEDURE NormalizeElementValue@1050(VAR ElementValue@1000 : Text);
-    BEGIN
-      OnNormalizeElementValue(ElementValue);
-    END;
-
-    [External]
-    PROCEDURE SetValue@24(NewValue@1000 : Text);
-    BEGIN
-      SetValueWithoutModifying(NewValue);
-      MODIFY;
-    END;
-
-    [External]
-    PROCEDURE SetValueWithoutModifying@25(NewValue@1000 : Text);
-    VAR
-      TempBlob@1001 : Record 99008535;
-    BEGIN
-      CLEAR("Value BLOB");
-      NormalizeElementValue(NewValue);
-      Value := COPYSTR(NewValue,1,MAXSTRLEN(Value));
-      IF STRLEN(NewValue) <= MAXSTRLEN(Value) THEN
-        EXIT; // No need to store anything in the blob
-      IF NewValue = '' THEN
-        EXIT;
-      TempBlob.WriteAsText(NewValue,TEXTENCODING::Windows);
-      "Value BLOB" := TempBlob.Blob;
-    END;
-
-    [Integration]
-    LOCAL PROCEDURE OnNormalizeElementValue@1051(VAR ElementValue@1000 : Text);
-    BEGIN
+      // 2019-05-07T00:00:00
     END;
 
     BEGIN
@@ -1698,411 +891,3 @@ OBJECT Table 1235 XML Buffer
   }
 }
 ````
-
-## OBJECT Codeunit 1235 XML Buffer Writer
-
-```` 
-OBJECT Codeunit 1235 XML Buffer Writer
-{
-  OBJECT-PROPERTIES
-  {
-    Date=24-03-19;
-    Time=12:00:00;
-    Version List=NAVW114.00;
-  }
-  PROPERTIES
-  {
-    OnRun=BEGIN
-          END;
-
-  }
-  CODE
-  {
-    VAR
-      GetJsonStructure@1009 : Codeunit 1237;
-      XmlReader@1000 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlReader";
-      XmlReaderSettings@1001 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlReaderSettings";
-      XmlUrlResolver@1003 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlUrlResolver";
-      XmlDtdProcessing@1002 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.DtdProcessing";
-      XmlNodeType@1004 : DotNet "'System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Xml.XmlNodeType";
-      NetCredentialCache@1006 : DotNet "'System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.System.Net.CredentialCache";
-      StringReader@1008 : DotNet "'mscorlib'.System.IO.StringReader";
-      OnlyGenerateStructure@1007 : Boolean;
-      UnsupportedInputTypeErr@1005 : TextConst 'DAN=Den anvendte variabeltype underst�ttes ikke.;ENU=The supplied variable type is not supported.';
-      ValueStringToLongErr@1010 : TextConst '@@@="%1 field Value; %2 the length of the string";DAN=%1 m� ikke v�re l�ngere end %2.;ENU=%1 must not be longer than %2.';
-      rdfaboutTok@1011 : TextConst '@@@={Locked};DAN=rdf:about;ENU=rdf:about';
-
-    [Internal]
-    PROCEDURE InitializeXMLBufferFrom@15(VAR XMLBuffer@1002 : Record 1235;StreamOrServerFile@1001 : Variant);
-    BEGIN
-      OnlyGenerateStructure := FALSE;
-      InitializeXMLReaderSettings;
-      CreateXMLReaderFrom(StreamOrServerFile);
-      ReadXmlReader;
-      ParseXML(XMLBuffer);
-    END;
-
-    [External]
-    PROCEDURE InitializeXMLBufferFromStream@25(VAR XMLBuffer@1002 : Record 1235;XmlStream@1001 : InStream);
-    BEGIN
-      OnlyGenerateStructure := FALSE;
-      InitializeXMLReaderSettings;
-      CreateXMLReaderFromInStream(XmlStream);
-      ReadXmlReader;
-      ParseXML(XMLBuffer);
-    END;
-
-    [External]
-    PROCEDURE InitializeXMLBufferFromText@9(VAR XMLBuffer@1002 : Record 1235;XmlText@1001 : Text);
-    BEGIN
-      InitializeXMLReaderSettings;
-      CreateXmlReaderFromXmlText(XmlText);
-      ReadXmlReader;
-      ParseXML(XMLBuffer);
-    END;
-
-    [Internal]
-    PROCEDURE GenerateStructureFromPath@1(VAR XMLBuffer@1002 : Record 1235;Path@1000 : Text);
-    BEGIN
-      OnlyGenerateStructure := TRUE;
-      InitializeXMLReaderSettings;
-      CreateXMLReaderFromPath(Path);
-      IF ReadXmlReader THEN
-        ParseXML(XMLBuffer)
-      ELSE
-        GetJsonStructure.GenerateStructure(Path,XMLBuffer);
-    END;
-
-    [External]
-    PROCEDURE GenerateStructure@3(VAR XMLBuffer@1002 : Record 1235;OutStream@1000 : OutStream);
-    BEGIN
-      InitializeXMLReaderSettings;
-      CreateXMLReaderFromOutStream(OutStream);
-      ReadXmlReader;
-      ParseXML(XMLBuffer);
-    END;
-
-    LOCAL PROCEDURE CreateXMLReaderFrom@7(StreamOrServerFile@1000 : Variant);
-    BEGIN
-      CASE TRUE OF
-        StreamOrServerFile.ISTEXT:
-          CreateXMLReaderFromPath(StreamOrServerFile);
-        StreamOrServerFile.ISINSTREAM:
-          CreateXMLReaderFromInStream(StreamOrServerFile);
-        StreamOrServerFile.ISOUTSTREAM:
-          CreateXMLReaderFromOutStream(StreamOrServerFile);
-        ELSE
-          ERROR(UnsupportedInputTypeErr);
-      END;
-    END;
-
-    LOCAL PROCEDURE CreateXMLReaderFromPath@4(Path@1000 : Text);
-    VAR
-      FileManagement@1001 : Codeunit 419;
-    BEGIN
-      FileManagement.IsAllowedPath(Path,FALSE);
-      XmlReader := XmlReader.Create(Path,XmlReaderSettings);
-    END;
-
-    LOCAL PROCEDURE CreateXMLReaderFromInStream@6(InStream@1000 : InStream);
-    BEGIN
-      XmlReader := XmlReader.Create(InStream,XmlReaderSettings);
-    END;
-
-    LOCAL PROCEDURE CreateXMLReaderFromOutStream@24(OutStream@1000 : OutStream);
-    BEGIN
-      XmlReader := XmlReader.Create(OutStream,XmlReaderSettings);
-    END;
-
-    LOCAL PROCEDURE CreateXmlReaderFromXmlText@12(XmlText@1000 : Text);
-    BEGIN
-      StringReader := StringReader.StringReader(XmlText);
-      XmlReader := XmlReader.Create(StringReader);
-    END;
-
-    LOCAL PROCEDURE InitializeXMLReaderSettings@5();
-    BEGIN
-      XmlUrlResolver := XmlUrlResolver.XmlUrlResolver;
-      XmlUrlResolver.Credentials := NetCredentialCache.DefaultNetworkCredentials;
-
-      XmlReaderSettings := XmlReaderSettings.XmlReaderSettings;
-      XmlReaderSettings.DtdProcessing := XmlDtdProcessing.Ignore;
-      XmlReaderSettings.XmlResolver := XmlUrlResolver;
-    END;
-
-    LOCAL PROCEDURE ParseXML@14(VAR XMLBuffer@1001 : Record 1235);
-    VAR
-      ParentXMLBuffer@1000 : Record 1235;
-    BEGIN
-      IF XMLBuffer.FINDLAST THEN ;
-
-      ParentXMLBuffer.INIT;
-      ParseXMLIteratively(XMLBuffer,ParentXMLBuffer);
-
-      XmlReader.Close;
-      XMLBuffer.RESET;
-      XMLBuffer.SETRANGE("Import ID",XMLBuffer."Import ID");
-      XMLBuffer.FINDFIRST;
-    END;
-
-    LOCAL PROCEDURE ParseXMLIteratively@13(VAR XMLBuffer@1001 : Record 1235;ParentXMLBuffer@1000 : Record 1235);
-    VAR
-      LastInsertedXMLBufferElement@1003 : Record 1235;
-      ElementNumber@1002 : Integer;
-      Depth@1004 : Integer;
-      ProcessingInstructionNumber@1005 : Integer;
-    BEGIN
-      Depth := XmlReader.Depth;
-      REPEAT
-        IF IsParentElement(Depth) THEN
-          EXIT;
-        ParseCurrentXmlNode(XMLBuffer,ParentXMLBuffer,LastInsertedXMLBufferElement,ElementNumber,Depth,ProcessingInstructionNumber);
-      UNTIL NOT XmlReader.Read;
-    END;
-
-    LOCAL PROCEDURE ParseCurrentXmlNode@16(VAR XMLBuffer@1001 : Record 1235;ParentXMLBuffer@1000 : Record 1235;VAR LastInsertedXMLBufferElement@1003 : Record 1235;VAR ElementNumber@1002 : Integer;Depth@1004 : Integer;VAR ProcessingInstructionNumber@1005 : Integer);
-    BEGIN
-      IF IsParentElement(Depth) THEN
-        EXIT;
-      IF IsChildElement(Depth) THEN BEGIN
-        ParseXMLIteratively(XMLBuffer,LastInsertedXMLBufferElement);
-        ParseCurrentXmlNode(XMLBuffer,ParentXMLBuffer,LastInsertedXMLBufferElement,ElementNumber,Depth,ProcessingInstructionNumber);
-      END ELSE
-        ReadAndInsertXmlElement(XMLBuffer,ParentXMLBuffer,ElementNumber,LastInsertedXMLBufferElement,ProcessingInstructionNumber);
-    END;
-
-    LOCAL PROCEDURE IsChildElement@10(CurrentDepth@1000 : Integer) : Boolean;
-    BEGIN
-      EXIT(XmlReader.Depth > CurrentDepth)
-    END;
-
-    LOCAL PROCEDURE IsParentElement@20(CurrentDepth@1000 : Integer) : Boolean;
-    BEGIN
-      EXIT(XmlReader.Depth < CurrentDepth)
-    END;
-
-    LOCAL PROCEDURE ReadAndInsertXmlElement@19(VAR XMLBuffer@1001 : Record 1235;ParentXMLBuffer@1000 : Record 1235;VAR ElementNumber@1002 : Integer;VAR InsertedXMLBufferElement@1003 : Record 1235;VAR ProcessingInstructionNumber@1005 : Integer);
-    VAR
-      TempXMLBuffer@1004 : TEMPORARY Record 1235;
-    BEGIN
-      XmlNodeType := XmlReader.NodeType;
-      IF XmlNodeType.Equals(XmlNodeType.Element) THEN BEGIN
-        ElementNumber += 1;
-        ProcessXmlElement(XMLBuffer,ParentXMLBuffer,ElementNumber,InsertedXMLBufferElement)
-      END ELSE
-        IF XmlNodeType.Equals(XmlNodeType.Text) THEN BEGIN
-          IF XMLBuffer.ISTEMPORARY THEN BEGIN
-            TempXMLBuffer.COPY(XMLBuffer,TRUE);
-            TempXMLBuffer := ParentXMLBuffer;
-            AddXmlTextNodeIntoParentXMLBuffer(TempXMLBuffer);
-          END ELSE
-            AddXmlTextNodeIntoParentXMLBuffer(ParentXMLBuffer);
-        END ELSE
-          IF XmlNodeType.Equals(XmlNodeType.ProcessingInstruction) THEN BEGIN
-            ProcessingInstructionNumber += 1;
-            InsertXmlProcessingInstruction(XMLBuffer,ParentXMLBuffer,ProcessingInstructionNumber)
-          END ELSE
-            IF XmlNodeType.Equals(XmlNodeType.XmlDeclaration) OR
-               XmlNodeType.Equals(XmlNodeType.Comment)
-            THEN
-              ;
-    END;
-
-    LOCAL PROCEDURE ProcessXmlElement@8(VAR XMLBuffer@1003 : Record 1235;ParentXMLBuffer@1000 : Record 1235;ElementNumber@1001 : Integer;VAR InsertedXMLBufferElement@1002 : Record 1235);
-    VAR
-      AttributeNumber@1004 : Integer;
-    BEGIN
-      InsertXmlElement(XMLBuffer,ParentXMLBuffer,ElementNumber);
-      InsertedXMLBufferElement := XMLBuffer;
-
-      IF XmlReader.MoveToFirstAttribute THEN
-        REPEAT
-          AttributeNumber += 1;
-          InsertXmlAttribute(XMLBuffer,InsertedXMLBufferElement,AttributeNumber);
-        UNTIL NOT XmlReader.MoveToNextAttribute;
-    END;
-
-    LOCAL PROCEDURE InsertXmlElement@17(VAR XMLBuffer@1002 : Record 1235;ParentXMLBuffer@1001 : Record 1235;ElementNumber@1000 : Integer);
-    BEGIN
-      WITH XMLBuffer DO BEGIN
-        IF OnlyGenerateStructure THEN BEGIN
-          RESET;
-          SETRANGE("Parent Entry No.",ParentXMLBuffer."Entry No.");
-          SETRANGE(Type,Type::Element);
-          SETRANGE(Name,XmlReader.Name);
-          IF FINDFIRST THEN
-            EXIT;
-        END;
-
-        InsertElement(XMLBuffer,ParentXMLBuffer,ElementNumber,XmlReader.Depth + 1,XmlReader.Name,'');
-      END;
-    END;
-
-    LOCAL PROCEDURE InsertXmlAttribute@18(VAR XMLBuffer@1001 : Record 1235;ParentXMLBuffer@1000 : Record 1235;AttributeNumber@1002 : Integer);
-    BEGIN
-      WITH XMLBuffer DO BEGIN
-        IF OnlyGenerateStructure THEN BEGIN
-          RESET;
-          SETRANGE("Parent Entry No.",ParentXMLBuffer."Entry No.");
-          SETRANGE(Type,Type::Attribute);
-          SETRANGE(Name,XmlReader.Name);
-          IF FINDFIRST THEN
-            EXIT;
-        END;
-
-        IF CanPassValue(XmlReader.Name,XmlReader.Value) THEN
-          InsertAttribute(XMLBuffer,ParentXMLBuffer,AttributeNumber,XmlReader.Depth + 1,XmlReader.Name,XmlReader.Value);
-      END;
-    END;
-
-    LOCAL PROCEDURE InsertXmlProcessingInstruction@33(VAR XMLBuffer@1001 : Record 1235;ParentXMLBuffer@1000 : Record 1235;ProcessingInstructionNumber@1002 : Integer);
-    BEGIN
-      WITH XMLBuffer DO BEGIN
-        IF OnlyGenerateStructure THEN BEGIN
-          RESET;
-          SETRANGE("Parent Entry No.",ParentXMLBuffer."Entry No.");
-          SETRANGE(Type,Type::"Processing Instruction");
-          SETRANGE(Name,XmlReader.Name);
-          IF FINDFIRST THEN
-            EXIT;
-        END;
-
-        InsertProcessingInstruction(XMLBuffer,ParentXMLBuffer,ProcessingInstructionNumber,XmlReader.Depth + 1
-          ,XmlReader.Name,XmlReader.Value);
-      END;
-    END;
-
-    LOCAL PROCEDURE GetType@2(Value@1000 : Text) : Integer;
-    VAR
-      DummyXMLBuffer@1001 : Record 1235;
-      Decimal@1003 : Decimal;
-    BEGIN
-      IF Value = '' THEN
-        EXIT(DummyXMLBuffer."Data Type"::Text);
-
-      IF EVALUATE(Decimal,Value) THEN
-        EXIT(DummyXMLBuffer."Data Type"::Decimal);
-
-      EXIT(DummyXMLBuffer."Data Type"::Text)
-    END;
-
-    LOCAL PROCEDURE AddXmlTextNodeIntoParentXMLBuffer@11(VAR XMLBuffer@1000 : Record 1235);
-    BEGIN
-      IF XMLBuffer.Value <> '' THEN
-        EXIT;
-
-      XMLBuffer.SetValueWithoutModifying(XmlReader.Value);
-      XMLBuffer.VALIDATE("Data Type",GetType(XMLBuffer.Value));
-      XMLBuffer.MODIFY;
-    END;
-
-    [External]
-    PROCEDURE InsertAttribute@22(VAR XMLBuffer@1000 : Record 1235;ParentXMLBuffer@1005 : Record 1235;NodeNumber@1001 : Integer;NodeDepth@1004 : Integer;AttributeName@1007 : Text[250];AttributeValue@1008 : Text[250]);
-    BEGIN
-      WITH XMLBuffer DO BEGIN
-        RESET;
-        IF FINDLAST THEN;
-        INIT;
-        "Entry No." += 1;
-        "Parent Entry No." := ParentXMLBuffer."Entry No.";
-        Path := COPYSTR(ParentXMLBuffer.Path + '/@' + AttributeName,1,MAXSTRLEN(Path));
-        "Node Number" := NodeNumber;
-        Name := AttributeName;
-        Value := AttributeValue;
-        Depth := NodeDepth;
-        "Data Type" := GetType(Value);
-        Type := Type::Attribute;
-        "Import ID" := ParentXMLBuffer."Import ID";
-
-        INSERT;
-      END;
-    END;
-
-    [External]
-    PROCEDURE InsertElement@21(VAR XMLBuffer@1010 : Record 1235;ParentXMLBuffer@1009 : Record 1235;ElementNumber@1003 : Integer;ElementDepth@1006 : Integer;ElementNameAndNamespace@1008 : Text[250];ElementValue@1007 : Text);
-    VAR
-      ElementName@1000 : Text[250];
-      ElementNamespace@1005 : Text[250];
-    BEGIN
-      SplitXmlElementName(ElementNameAndNamespace,ElementName,ElementNamespace);
-
-      IF ISNULLGUID(ParentXMLBuffer."Import ID") THEN
-        ParentXMLBuffer."Import ID" := CREATEGUID;
-
-      WITH XMLBuffer DO BEGIN
-        RESET;
-        IF FINDLAST THEN ;
-        INIT;
-        "Entry No." += 1;
-        "Parent Entry No." := ParentXMLBuffer."Entry No.";
-        Path := COPYSTR(STRSUBSTNO('%1/%2',ParentXMLBuffer.Path,ElementNameAndNamespace),1,MAXSTRLEN(Path));
-        "Node Number" := ElementNumber;
-        Depth := ElementDepth;
-        Name := ElementName;
-        SetValueWithoutModifying(ElementValue);
-        Type := Type::Element;
-        Namespace := ElementNamespace;
-        "Import ID" := ParentXMLBuffer."Import ID";
-
-        INSERT;
-      END;
-    END;
-
-    [External]
-    PROCEDURE InsertProcessingInstruction@34(VAR XMLBuffer@1005 : Record 1235;ParentXMLBuffer@1004 : Record 1235;NodeNumber@1003 : Integer;NodeDepth@1002 : Integer;InstructionName@1001 : Text[250];InstructionValue@1000 : Text);
-    BEGIN
-      WITH XMLBuffer DO BEGIN
-        RESET;
-        IF FINDLAST THEN;
-        INIT;
-        "Entry No." += 1;
-        "Parent Entry No." := ParentXMLBuffer."Entry No.";
-        Path := COPYSTR(ParentXMLBuffer.Path + '/processing-instruction(''' + InstructionName + ''')',1,MAXSTRLEN(Path));
-        "Node Number" := NodeNumber;
-        Depth := NodeDepth;
-        Name := InstructionName;
-        SetValueWithoutModifying(InstructionValue);
-        Type := Type::"Processing Instruction";
-        "Import ID" := ParentXMLBuffer."Import ID";
-
-        INSERT;
-      END;
-    END;
-
-    LOCAL PROCEDURE SplitXmlElementName@46(RawXmlElementName@1000 : Text[250];VAR ElementName@1001 : Text[250];VAR ElementNamespace@1002 : Text[250]);
-    VAR
-      ColonPosition@1003 : Integer;
-    BEGIN
-      ColonPosition := STRPOS(RawXmlElementName,':');
-      IF ColonPosition <> 0 THEN BEGIN
-        ElementNamespace := COPYSTR(RawXmlElementName,1,ColonPosition - 1);
-        ElementName := COPYSTR(RawXmlElementName,ColonPosition + 1);
-      END ELSE BEGIN
-        ElementName := RawXmlElementName;
-        ElementNamespace := '';
-      END;
-    END;
-
-    [TryFunction]
-    LOCAL PROCEDURE ReadXmlReader@23();
-    BEGIN
-      XmlReader.Read
-    END;
-
-    LOCAL PROCEDURE CanPassValue@26(Name@1000 : Text;Value@1001 : Text) : Boolean;
-    VAR
-      XMLBuffer@1002 : Record 1235;
-    BEGIN
-      IF STRLEN(Value) <= MAXSTRLEN(XMLBuffer.Value) THEN
-        EXIT(TRUE);
-      IF Name = rdfaboutTok THEN
-        EXIT(FALSE);
-      ERROR(ValueStringToLongErr,XMLBuffer.FIELDCAPTION(Value),MAXSTRLEN(XMLBuffer.Value))
-    END;
-
-    BEGIN
-    END.
-  }
-}
-
-```` 
